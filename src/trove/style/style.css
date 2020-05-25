@@ -1,0 +1,253 @@
+body {
+  background-color: white;
+}
+
+.safetyChecksMessage {
+  margin: auto;
+  margin-top: 20px;
+}
+.safetyChecksMessage li {
+  list-style: square;
+  padding: 2px;
+  margin: 0 10%;
+}
+
+.messageBodyHeading {
+  font-size: 24px;
+  font-weight: bold;
+  padding: 8px;
+  text-shadow: 2px 2px #fff;
+  margin-top: -10px;
+  text-align: center;
+}
+
+.messageButtons {
+  text-align: center;
+  margin-top: 20px;
+}
+
+.homeTable {
+  margin: 40px auto;
+}
+.homeTable .button {
+  width: 100%;
+  margin: 8px;
+}
+
+.section {
+  max-width: 900px;
+  margin: auto;
+  margin-top: 30px;
+  height: 450px;
+}
+
+.wizardStepBody {
+  margin: 40px 0;
+}
+
+.wizardStepButtons {
+  border-top: 1px solid lightgrey;
+  padding-top: 10px;
+}
+
+.wizardStepButtons a {
+  margin: 0px 4px;
+}
+
+.wizardStepBody .control {
+  text-align: center;
+}
+
+.menu {
+  width: 200px;
+  float: left;
+}
+
+.downloadAgain {
+  color: #0000ee;
+  cursor: pointer;
+}
+
+.verifyAgain {
+  color: #0000ee;
+  cursor: pointer;
+}
+
+.link {
+  color: #0000ee;
+  cursor: pointer;
+  text-decoration: underline;
+  margin: 4px;
+}
+
+.button.darker {
+  border-color: #4a4a4a;
+  color: #4a4a4a;
+}
+
+.envelopeCardLower .button {
+  margin: 2px 0;
+}
+
+.showDownloadTechnicalNote {
+  color: #0000ee;
+  cursor: pointer;
+}
+
+.envelopeCardUpper {
+  font-size: 20px;
+  text-align: left;
+  padding: 6px;
+}
+
+.envelopeCardUpper .tick {
+  width: 30px;
+  float: right;
+}
+
+.notification {
+  width: 500px;
+  margin: auto;
+}
+
+.wizardStepBody .message-body p {
+  padding: 10px;
+}
+
+.item {
+  list-style: square;
+  padding: 4px;
+  margin: 0 30px;
+}
+
+.workflowImagesTables {
+  border: 1px solid grey;
+  border-collapse: separate;
+  border-radius: 10px;
+}
+
+.workflowImagesTables th {
+  border-right: 1px solid grey;
+  padding: 8px;
+}
+.workflowImagesTables th:last-child {
+  border-right: none;
+}
+
+.workflowImagesTables td {
+  border-right: 1px solid grey;
+  padding: 15px 30px;
+}
+.workflowImagesTables td:last-child {
+  border-right: none;
+}
+
+.keyDetailsTable th {
+  text-align: right !important;
+  padding: 8px;
+}
+.keyDetailsTable td {
+  overflow-wrap: anywhere;
+  padding: 8px;
+}
+
+.blueHoverEffect:hover {
+  cursor: pointer;
+  -webkit-filter: grayscale(100%) brightness(30%) sepia(100%)
+    hue-rotate(-180deg) saturate(700%) contrast(0.8);
+  filter: grayscale(100%) brightness(30%) sepia(100%) hue-rotate(-180deg)
+    saturate(700%) contrast(0.8);
+}
+
+.qrTable {
+  margin: auto;
+}
+
+.qrTable td {
+  vertical-align: middle;
+}
+
+.qrTable td div {
+  text-align: center;
+}
+
+.qrTable button {
+  margin: 5px;
+}
+
+.optionMessage {
+  width: 80%;
+  margin: auto;
+}
+
+.tags .tag {
+  cursor: pointer;
+  justify-content: left;
+  min-width: 100px;
+}
+
+.tags .tag.selectedTag {
+  cursor: default;
+  border: 1px solid black;
+}
+
+.paperTemplate {
+  font-size: 12px;
+  font-family: monospace;
+}
+
+.paperTemplate h1 {
+  font-weight: bold;
+}
+
+code {
+  word-wrap: anywhere;
+}
+
+.donationModal {
+  text-align: center;
+  border: 1px solid grey;
+  border-radius: 10px;
+  padding: 10px;
+  padding-bottom: 20px;
+}
+
+.donationModal canvas {
+  display: block;
+  margin: auto;
+}
+
+.topic {
+  margin: 40px 0;
+}
+
+.topicHeading {
+  font-weight: bold;
+  font-size: 22px;
+  text-align: center;
+}
+
+.topicContent {
+  margin: 10px 0;
+}
+
+.verifyTable tr {
+  transition: background-color 1s ease-in;
+}
+
+.slip39ValuesTable {
+  margin: 20px auto;
+}
+.slip39ValuesTable th {
+  text-align: right !important;
+  padding-top: 4px;
+}
+.slip39ValuesTable td {
+  padding-bottom: 14px;
+  padding-left: 8px;
+}
+
+.templateDetailDiv {
+  margin-right: 50px;
+  display: inline-block;
+}

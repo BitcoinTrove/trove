@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta content="text/html;charset=utf-8" http-equiv="Content-Type"></meta>
+    <link rel="stylesheet" href="trove/style/style.css" />
+    <link rel="stylesheet" href="trove/style/bulma-modules.sass" />
+  </head>
+  <body>
+
+    <div class="imagests" style="display: none;">
+
+      <!-- Platform Images - Used by src/platform/images/images.ts -->
+      <img id="image.Check500x500" src="platform/images/check_500_500.png" />
+      <img id="image.Finished500x500" src="platform/images/finished_500_500.png" />
+
+      <!-- Trove Images - Used by src/trove/images/images.ts -->
+      <img id="image.Browser" src="trove/images/entropy_browser.png" />
+      <img id="image.Coin" src="trove/images/entropy_coin.png" />
+      <img id="image.CoinH" src="trove/images/coin_h.png" />
+      <img id="image.CoinT" src="trove/images/coin_t.png" />
+      <img id="image.Dice" src="trove/images/entropy_dice.png" />
+      <img id="image.Dice1" src="trove/images/dice1.png" />
+      <img id="image.Dice2" src="trove/images/dice2.png" />
+      <img id="image.Dice3" src="trove/images/dice3.png" />
+      <img id="image.Dice4" src="trove/images/dice4.png" />
+      <img id="image.Dice5" src="trove/images/dice5.png" />
+      <img id="image.Dice6" src="trove/images/dice6.png" />
+      <img id="image.Favicon" src="trove/images/favicon.png" />
+      <img id="image.Logo200x200" src="trove/images/logo_200_200.png" />
+      <img id="image.Paper" src="trove/images/paper.png" />
+      <img id="image.QrMultiple" src="trove/images/qr_multiple2.png" />
+      <img id="image.QrSingle" src="trove/images/qr_single2.png" />
+      <img id="image.ShareEnvelope" src="trove/images/share_envelope.png" />
+
+    </div>
+
+    <textarea id="data" class="data" disabled="disabled" style="display: none;">__DOCUMENT_DATA__</textarea>
+
+    <script>
+      /* default implementation which will be overwritten by localizer.ts below*/
+      
+      // FIXME - This getParameterByName is duplicated in at least 3 places
+      var getParameterByName = function(name) {
+        var url = window.location.href;
+        name = name.replace(/[\\[\\]]/g, "\\\\$$&");
+        var regex = new RegExp("[?&]" + name + "(=([^&#]*)|&|#|$)");
+        var results = regex.exec(url);
+        if (!results) return null;
+        if (!results[2]) return "";
+        return decodeURIComponent(results[2].replace(/\\+/g, " "));
+      };
+      
+      window.queryLocale = getParameterByName("locale") || "en";
+      window.localize =
+        window.localize ||
+        function(text) {
+          var span = document.createElement('span');
+           span.innerHTML = text;
+           var upperCase = function(node) {
+             if (node.nodeType === 3) {
+               node.data = node.data.toUpperCase();
+             }
+             for (var i = 0; i < node.childNodes.length; ++i) {
+               upperCase(node.childNodes[i]);
+             }
+           }
+           if (queryLocale === "uppercase"){
+             upperCase(span);
+           }
+           return span.innerHTML;
+        };
+    </script>
+    <script id="localizer.ts"></script>
+    <script id="indexts" src="index.ts"></script>
+  </body>
+</html>

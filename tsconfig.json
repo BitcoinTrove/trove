@@ -1,0 +1,8 @@
+{
+  "compilerOptions": {
+    "sourceMap": true,
+    "lib": ["dom", "dom.iterable", "ES2015"],
+    "jsx": "react",
+    "experimentalDecorators": true
+  }
+}
