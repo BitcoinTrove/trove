@@ -1,7 +1,7 @@
 import * as React from "jsx-dom"; // Fake React for JSX->DOM support
 import { IS_DEV } from "../trove_constants";
 import { copyTextToClipboard } from "../../platform/util/clipboard";
-import { baseTemplate } from "../../platform/util/duplication";
+import { createTroveWithDataInBrowser } from "../../platform/util/duplication";
 import { MasterSeed } from "../types/master_seed";
 import { htmlRef } from "../../platform/util/html_ref";
 import { download, downloadCanvasAsImage } from "../util/files";
@@ -59,7 +59,7 @@ export const AddressViewMultipleRandom = ({
           class="button is-success is-outlined"
           onClick={(e) => {
             download(
-              baseTemplate({
+              createTroveWithDataInBrowser({
                 addressGenerator: {
                   xpub: masterSeed.getBip44Account0Xpub(),
                   maxIndex: maxIndex,

@@ -1,21 +1,10 @@
 import { WizardStepBody } from "../../../platform/components/wizard";
 import * as React from "jsx-dom"; // Fake React for JSX->DOM support
-import * as bitcoinMessage from "bitcoinjs-message";
-import { getSignatureFromText } from "../../trove_constants";
-import { showJsxInModal } from "../../../platform/util/modals";
 import { PrivateKeyWif } from "../../components/private_key_wif";
 import { PrivateKeyWifMulti } from "../../components/private_key_wif_multi";
-import {
-  removeDocumentDataFromText,
-  replaceDocumentData,
-} from "../../../platform/util/duplication";
-import { FILENAME } from "../../../shared/constants";
-import { Bulma } from "../../../platform/util/bulma";
 import { showElements } from "../../../platform/util/extended_html_element";
 import { htmlRef } from "../../../platform/util/html_ref";
-import { readText, download } from "../../util/files";
 import { textAsCanvasSimple } from "../../util/address";
-import { SIGNING_ADDRESS } from "../../util/donation";
 import { aesDecrypt } from "../../util/aes";
 import { SecretShareEnvelope } from "../../types/secret_share_envelope";
 import { MasterSeed } from "../../types/master_seed";
@@ -24,9 +13,9 @@ import {
   RevealMessage,
 } from "../../components/reveal_message";
 import {
-  DebugControlsRef,
-  DebugControls,
-} from "../../components/debug_controls";
+  SecurityConfigControlsRef,
+  SecurityConfigControls,
+} from "../../components/security_config_controls";
 import { PublicQrContainer } from "../../components/public_qr_container";
 import { SignMessage } from "../../components/sign_message";
 import { SignTransaction } from "../../components/sign_transaction";
@@ -38,6 +27,7 @@ import { valueRef } from "../../../platform/util/value_provider";
 declare var localize: (enText: string) => string;
 
 export class Step3_PerformActions extends WizardStepBody {
+  private showSecurityConfigControls: boolean;
   private revealed: boolean = false;
   private baseEnvelope: SecretShareEnvelope | undefined = undefined;
   private masterSeed: MasterSeed | undefined = undefined;
@@ -45,18 +35,18 @@ export class Step3_PerformActions extends WizardStepBody {
   private securityConfigProvider = valueRef<SecurityConfig>();
 
   private postRevealContainer = htmlRef();
-  private signatureAddress = htmlRef();
 
   private revealMessageRef = compRef<RevealMessageRef>();
-  private debugControlsRef = compRef<DebugControlsRef>();
+  private debugControlsRef = compRef<SecurityConfigControlsRef>();
   private securityConfigDependencies = htmlRef();
 
   private sweepXpriv = htmlRef();
   private sweepXprivContent = htmlRef();
   private sweepKeysContent = htmlRef();
 
-  constructor() {
+  constructor(showSecurityConfigControls: boolean) {
     super(localize("Perform actions"));
+    this.showSecurityConfigControls = showSecurityConfigControls;
   }
 
   dependentStateProperties() {
@@ -77,63 +67,15 @@ export class Step3_PerformActions extends WizardStepBody {
           }}
         />
         <div ref={this.postRevealContainer}>
-          <DebugControls
-            debugControls={this.debugControlsRef}
+          <SecurityConfigControls
+            securityConfigControls={this.debugControlsRef}
             securityConfig={this.securityConfigProvider}
+            visible={this.showSecurityConfigControls}
           />
           <div ref={this.securityConfigDependencies}>
             <PublicQrContainer
               securityConfig={this.securityConfigProvider}
             ></PublicQrContainer>
-            <div ref={this.signatureAddress} style="display: none;">
-              <article class="message is-info">
-                <div class="message-body" style="text-align: center;">
-                  <div class="messageBodyHeading">
-                    <span>~ {localize("Sign files")} ~</span>
-                  </div>
-                  <p>
-                    {localize(
-                      "These credentials are able to sign versions of Trove."
-                    )}
-                  </p>
-                  <button
-                    class="button is-info is-outlined"
-                    onClick={(e) => {
-                      readText(".html", (text) => {
-                        if (getSignatureFromText(text)) {
-                          showJsxInModal(
-                            localize("Signing failed"),
-                            Bulma.message(
-                              localize("This file already has a signature.")
-                            ).danger(),
-                            false
-                          );
-                          return;
-                        }
-                        const textToSign = removeDocumentDataFromText(text);
-                        const ecPair = this.masterSeed.getEcPair();
-                        const signature = bitcoinMessage
-                          .sign(
-                            textToSign,
-                            ecPair.privateKey,
-                            ecPair.compressed,
-                            {
-                              segwitType: "p2wpkh",
-                            }
-                          )
-                          .toString("base64");
-                        const signedFile = replaceDocumentData(text, {
-                          signature,
-                        });
-                        download(signedFile, FILENAME);
-                      });
-                    }}
-                  >
-                    Sign a file
-                  </button>
-                </div>
-              </article>
-            </div>
             <div class="field">
               <div class="control">
                 <div class="tabs is-boxed">
@@ -237,10 +179,6 @@ export class Step3_PerformActions extends WizardStepBody {
 
   onSecurityConfigChanged = (config: SecurityConfig) => {
     this.securityConfigDependencies.showOrHide(!!config.masterSeed);
-
-    this.signatureAddress.showOrHide(
-      config?.masterSeed?.getAddress() == SIGNING_ADDRESS
-    );
     this.sweepXpriv.showOrHide(config.addressStrategy.isMultiple());
 
     if (config.masterSeed) {

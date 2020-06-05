@@ -1,10 +1,7 @@
 import * as React from "jsx-dom"; // Fake React for JSX->DOM support
 import { htmlRef } from "../../platform/util/html_ref";
 import { networkFromString } from "../util/network";
-import {
-  SHOW_RANDOM_ADDRESS_STRATEGY,
-  DEBUG_DISPLAY,
-} from "../trove_constants";
+import { SHOW_RANDOM_ADDRESS_STRATEGY, IS_DEBUG } from "../trove_constants";
 import { MasterSeed } from "../types/master_seed";
 import { AddressStrategy } from "../types/address_strategy";
 import { SecretShareEnvelope } from "../types/secret_share_envelope";
@@ -13,19 +10,21 @@ import { ValueRef } from "../../platform/util/value_provider";
 
 declare var localize: (enText: string) => string;
 
-export interface DebugControlsRef {
+export interface SecurityConfigControlsRef {
   setMasterSeed: (masterSeed: string) => void;
   setNetwork: (network: string) => void;
   setAddressStrategy: (strategy: string) => void;
   setBaseEnvelope: (baseEnvelope: SecretShareEnvelope) => void;
 }
 
-export const DebugControls = ({
-  debugControls,
+export const SecurityConfigControls = ({
+  securityConfigControls,
   securityConfig,
+  visible,
 }: {
-  debugControls: DebugControlsRef;
+  securityConfigControls: SecurityConfigControlsRef;
   securityConfig: ValueRef<SecurityConfig>;
+  visible: boolean;
 }) => {
   let baseEnvelope: SecretShareEnvelope = null;
 
@@ -57,28 +56,35 @@ export const DebugControls = ({
     onChange();
   };
 
-  debugControls.setBaseEnvelope = (envelope: SecretShareEnvelope) => {
+  securityConfigControls.setBaseEnvelope = (envelope: SecretShareEnvelope) => {
     baseEnvelope = envelope;
   };
-  debugControls.setMasterSeed = (masterSeed: string) => {
+  securityConfigControls.setMasterSeed = (masterSeed: string) => {
     masterSeedInput.setValue(masterSeed);
   };
-  debugControls.setNetwork = (network: string) => {
+  securityConfigControls.setNetwork = (network: string) => {
     debugNetworkSelect.setValue(network);
   };
-  debugControls.setAddressStrategy = (strategy: string) => {
+  securityConfigControls.setAddressStrategy = (strategy: string) => {
     multipleRandomOption.showOrHide(
       SHOW_RANDOM_ADDRESS_STRATEGY || strategy === "multipleRandom"
     );
     debugAddressStrategySelect.setValue(strategy);
   };
 
+  let disabled = false;
+  if (!visible && IS_DEBUG) {
+    // show it, but disabled
+    visible = true;
+    disabled = true;
+  }
+
   return (
     <table
       class="keyDetailsTable"
       style={{
         margin: "auto auto 28px auto",
-        display: DEBUG_DISPLAY,
+        display: visible ? "" : "none",
       }}
     >
       <tr ref={debugMasterSeed} style="border: 1px dashed #209cee;">
@@ -90,6 +96,7 @@ export const DebugControls = ({
             type="text"
             style="color: #209cee;"
             onInput={onChange}
+            disabled={disabled}
           ></input>
         </td>
       </tr>
@@ -97,7 +104,6 @@ export const DebugControls = ({
         ref={debugNetworkRow}
         style={{
           border: "1px dashed #209cee",
-          display: DEBUG_DISPLAY,
         }}
       >
         <th style="color: #209cee;">{localize("Network")}</th>
@@ -107,6 +113,7 @@ export const DebugControls = ({
               ref={debugNetworkSelect}
               style="color: #209cee;"
               onInput={onChange}
+              disabled={disabled}
             >
               <option value="testnet">{localize("Testnet")}</option>
               <option value="bitcoin">{localize("Bitcoin")}</option>
@@ -118,7 +125,6 @@ export const DebugControls = ({
         ref={debugAddressStrategyRow}
         style={{
           border: "1px dashed #209cee",
-          display: DEBUG_DISPLAY,
         }}
       >
         <th style="color: #209cee;">{localize("Address strategy")}</th>
@@ -128,6 +134,7 @@ export const DebugControls = ({
               ref={debugAddressStrategySelect}
               style="color: #209cee;"
               onInput={onChange}
+              disabled={disabled}
             >
               <option value="single">{localize("Single address")}</option>
               <option value="multiplePrinted">

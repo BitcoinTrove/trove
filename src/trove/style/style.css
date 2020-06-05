@@ -78,6 +78,7 @@ body {
   cursor: pointer;
   text-decoration: underline;
   margin: 4px;
+  user-select: none;
 }
 
 .button.darker {

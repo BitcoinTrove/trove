@@ -10,13 +10,14 @@ export const copyTextToClipboard = (
   button: ExtendedHtmlElement
 ) => {
   const hiddenInput = extendHtmlElement(
-    <textarea style="height: 0px; width: 0px;" name="hiddenInput" type="text">
+    <textarea style="height: 0px; width: 0px;" type="text">
       {text}
     </textarea>
   );
   document.body.appendChild(hiddenInput.asHtmlElement());
 
-  hiddenInput.focus().select();
+  //hiddenInput.focus(); // Disabling this for now. It seems to scroll the page.
+  hiddenInput.select();
 
   const successful = document.execCommand("copy");
   buttonSuccessAnimation(button, successful);

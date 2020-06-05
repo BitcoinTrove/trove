@@ -8,6 +8,7 @@ import { replaceAll } from "../../shared/constants";
 import { sha256 } from "../../platform/util/checksum";
 import { MasterSeed } from "../types/master_seed";
 import { SecretShareEnvelope } from "../types/secret_share_envelope";
+import { TROVE_VERSION } from "./version";
 
 const randomShareId = () => {
   var array = new Uint8Array(8);
@@ -33,11 +34,7 @@ export class SecretSplitter {
     return this;
   }
 
-  splitIntoEnvelopesSlip39(
-    masterSeed: MasterSeed,
-    settings: SettingsState,
-    codeVersion: string
-  ) {
+  splitIntoEnvelopesSlip39(masterSeed: MasterSeed, settings: SettingsState) {
     if (this.done) {
       throw "SecretSplitter instances can only be used once";
     }
@@ -90,7 +87,7 @@ export class SecretSplitter {
       (words: string, index: number) => {
         return {
           version: 0.1,
-          codeVersion: codeVersion,
+          codeVersion: TROVE_VERSION,
           numberOfShares: finalNumberOfShares,
           numberOfRequiredShares: finalNumberOfRequiredShares,
           shareNames: filenames,

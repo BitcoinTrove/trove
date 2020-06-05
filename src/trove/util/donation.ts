@@ -1,9 +1,6 @@
 import { fromBase58 } from "bip32";
 import { networks } from "bitcoinjs-lib";
 import { getAddress } from "./address";
-import * as bitcoinMessage from "bitcoinjs-message";
-import { DOCUMENT_DATA } from "../trove_constants";
-import { baseTemplate } from "../../platform/util/duplication";
 import { randomInt } from "./random";
 
 export const DONATE_XPUB =
@@ -19,14 +16,3 @@ export const SIGNING_ADDRESS = getAddress(
   fromBase58(DONATE_XPUB, DONATION_NETWORK).derive(0),
   DONATION_NETWORK
 );
-
-export const isFileSignatureValid = () => {
-  if (DOCUMENT_DATA?.signature) {
-    return bitcoinMessage.verify(
-      baseTemplate(),
-      SIGNING_ADDRESS,
-      DOCUMENT_DATA.signature
-    );
-  }
-  return false;
-};

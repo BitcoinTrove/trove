@@ -12,7 +12,6 @@ import { crypto as bitcoinCrypto } from "bitcoinjs-lib";
 import { AddressViewSingle } from "../../components/address_view_single";
 import { AddressViewMultiplePrinted } from "../../components/address_view_multiple_printed";
 import { AddressViewMultipleRandom } from "../../components/address_view_multiple_random";
-import { baseTemplate } from "../../../platform/util/duplication";
 import { sha256 } from "../../../platform/util/checksum";
 import { PublicAddressMulti } from "../../components/public_address_multi";
 import { ViewAdditionalDetails } from "../../components/view_additional_details";
@@ -337,11 +336,9 @@ export class Step2_GenerateAddress extends WizardStepBody {
         .withTags({ type: "slip39_1" })
         .formatName("{referenceName}_{index}.html");
 
-      const codeVersion = sha256(baseTemplate());
       this.envelopes = secrets.splitIntoEnvelopesSlip39(
         this.masterSeed,
-        settings,
-        codeVersion
+        settings
       );
 
       this.addressViewContainer
@@ -554,7 +551,11 @@ export class Step2_GenerateAddress extends WizardStepBody {
       wizardState["baseEnvelope"] = this.envelopes[0];
       //I hate that I am writing state here
       // This is only a debug option though, and seems to work good enough
-      const wizard = new AccessBitcoinFastForward(new Home(), wizardState);
+      const wizard = new AccessBitcoinFastForward(
+        new Home(),
+        wizardState,
+        true /* showSecurityConfigControls */
+      );
       mount(document.body, wizard);
       wizard.show();
     };

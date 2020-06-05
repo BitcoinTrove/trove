@@ -1,12 +1,12 @@
 import { Screen } from "../../platform/components/screen";
 import * as React from "jsx-dom"; // Fake React for JSX->DOM support
-import { DOCUMENT_DATA, AddressGenerator } from "../trove_constants";
 import { fromBase58 } from "bip32";
 import { copyTextToClipboard } from "../../platform/util/clipboard";
 import { htmlRef } from "../../platform/util/html_ref";
 import { networkFromString } from "../util/network";
 import { getAddress, xpubIndexAsCanvas } from "../util/address";
 import { randomInt } from "../util/random";
+import { AddressGenerator, DOCUMENT_DATA } from "../types/document_data";
 
 declare var localize: (enText: string) => string;
 

@@ -1,7 +1,11 @@
 import * as React from "jsx-dom"; // Fake React for JSX->DOM support
 import { WizardStepBody } from "../../../platform/components/wizard";
 import { RadioGroup } from "../../../platform/components/radio_group";
-import { IS_DEBUG, SHOW_RANDOM_ADDRESS_STRATEGY } from "../../trove_constants";
+import {
+  IS_DEBUG,
+  SHOW_RANDOM_ADDRESS_STRATEGY,
+  IS_DEV,
+} from "../../trove_constants";
 import { ImageAndText } from "../../../platform/components/image_and_text";
 import { showTextInModal } from "../../../platform/util/modals";
 import { SettingsState, EntropySource } from "./create_shares_wizard";
@@ -9,7 +13,6 @@ import { replaceAll } from "../../../shared/constants";
 import {
   ExtendedHtmlElement,
   extendHtmlElement,
-  BULMA_STD_CLASSES,
 } from "../../../platform/util/extended_html_element";
 import { htmlRef, mutableHtmlRef } from "../../../platform/util/html_ref";
 import { getCreationDate } from "../../util/date";
@@ -114,7 +117,7 @@ export class Step1_Settings extends WizardStepBody {
                 },
                 {
                   displayText: localize("Bitcoin"),
-                  showIf: IS_DEBUG,
+                  showIf: IS_DEV && IS_DEBUG,
                   value: "bitcoin",
                   className: "is-danger",
                   details: (

@@ -1,21 +1,28 @@
 {
-  "name": "parcel-test",
-  "version": "1.0.0",
+  "name": "trove",
+  "version": "0.0.2",
   "description": "",
   "main": "index.js",
   "scripts": {
     "bootstrapify": "ts-node build-scripts/bootstrapify.ts",
     "inject-localized-content": "ts-node build-scripts/localizer.ts",
-    "release": "rm -rf dist/* && removeNPMAbsolutePaths . && npm run release-unlocalized && npm run inject-localized-content && npm run bootstrapify",
+    "release": "rm -rf dist/* release/* && removeNPMAbsolutePaths . && npm run release-unlocalized && npm run inject-localized-content && npm run bootstrapify",
     "release-hosted": "npm run release && http-server release/ -p 1234",
     "release-unlocalized": "parcel build src/index.html --public-url . --no-source-maps --detailed-report && cp dist/index.html release/trove.html",
+    "gpg-sign-release": "gpg -u bitcoin_trove@protonmail.com --detach-sig release/trove.html",
+    "gpg-verify-release": "gpg --verify release/trove.html.sig release/trove.html",
     "dev": "parcel src/index.html",
     "test": "jest",
     "enoent": "npm cache clean --force && rm -rf .cache"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
+  "keywords": [
+    "bitcoin",
+    "coldstorage",
+    "slip39",
+    "psbt"
+  ],
+  "author": "BitcoinTrove",
+  "license": "MIT",
   "devDependencies": {
     "@babel/core": "^7.8.6",
     "@testing-library/dom": "^7.7.1",

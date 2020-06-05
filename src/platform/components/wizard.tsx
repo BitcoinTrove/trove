@@ -3,6 +3,7 @@ import { clone, equalForKeys } from "../util/object";
 import * as React from "jsx-dom"; // Fake React for JSX->DOM support
 import { PlatformImages } from "../images/platform_images";
 import { htmlRef } from "../util/html_ref";
+import { showJsxInModal } from "../util/modals";
 
 declare var localize: (enText: string) => string;
 
@@ -245,7 +246,41 @@ export class Wizard {
       wizard.goToNextStep();
     };
     this.cancelButton.events().onclick = (e) => {
-      wizard.onCancelF();
+      // TODO - This last step stuff is messy.
+      // The cancel button shouldn't change into a close button on the last step
+      // A close button should be added and their visibility should be updated
+      const isLastStep = this.currentStep === this.steps.length - 1;
+      if (isLastStep) {
+        wizard.onCancelF();
+        return;
+      }
+      const buttons = (
+        <span>
+          <button
+            class="button"
+            onClick={(e) => {
+              hide();
+            }}
+          >
+            {localize("Go back")}
+          </button>
+          <button
+            class="button is-danger is-outlined"
+            onClick={(e) => {
+              hide();
+              wizard.onCancelF();
+            }}
+          >
+            {localize("Yes, cancel")}
+          </button>
+        </span>
+      );
+      const hide = showJsxInModal(
+        "Cancel wizard",
+        <span>{localize("Are you sure you want to cancel this wizard?")}</span>,
+        false,
+        buttons
+      );
     };
 
     this.handleStepChange(null, this.steps[0], true, false);

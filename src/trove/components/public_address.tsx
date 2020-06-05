@@ -31,3 +31,16 @@ export const PublicAddress = ({ address }: { address: string }) => {
 
   return content;
 };
+
+export const PublicAddress2 = ({ address }: { address: string }) => {
+  const canvasContainer = htmlRef();
+  const content = <div ref={canvasContainer}></div>;
+
+  addressAsCanvasSimple(address, (error, canvas) => {
+    canvas.style.border = "1px solid #12537e";
+    canvas.style.borderRadius = "10px";
+    canvasContainer.empty().appendChild(canvas);
+  });
+
+  return content;
+};

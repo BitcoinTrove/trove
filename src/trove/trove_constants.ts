@@ -3,10 +3,7 @@ import { crypto as bitcoinCrypto } from "bitcoinjs-lib";
 import { utils } from "aes-js";
 import { clone } from "../platform/util/object";
 import { canonicalize } from "json-canonicalize";
-import { DOCUMENT_DATA_KEY } from "../shared/constants";
 import { SecretShareEnvelope } from "./types/secret_share_envelope";
-
-export const SOFTWARE_VERSION = "0.0.2 alpha";
 
 const getCrypto = () => {
   const anyWindow = window as any;
@@ -72,53 +69,6 @@ const determineDebug = (): boolean => {
 };
 export const IS_DEBUG = determineDebug();
 export const DEBUG_DISPLAY = IS_DEBUG ? "" : "none";
-
-export type AddressGenerator = {
-  xpub: string;
-  network: string;
-  maxIndex: number;
-};
-
-export type DocumentData = {
-  envelope?: SecretShareEnvelope;
-  addressGenerator?: AddressGenerator;
-  signature?: string;
-};
-
-export const getRawDocumentData: (element: ParentNode) => string = (
-  element: Element
-) => {
-  const textarea: HTMLTextAreaElement = element.querySelector(".data");
-  if (!textarea) {
-    return "";
-  }
-  return textarea.value;
-};
-
-export const getDocumentDataFromText: (text: string) => DocumentData = (
-  text: string
-) => {
-  const html = document.createElement("html");
-  html.innerHTML = text;
-  return getDocumentDataFromNode(html);
-};
-
-export const getDocumentDataFromNode: (element: ParentNode) => DocumentData = (
-  element: Element
-) => {
-  const documentDataString = getRawDocumentData(element);
-  if (!documentDataString || documentDataString === DOCUMENT_DATA_KEY) {
-    return {};
-  }
-  return JSON.parse(documentDataString);
-};
-
-export const getSignatureFromText = (text: string) => {
-  const documentData = getDocumentDataFromText(text);
-  return documentData.signature;
-};
-
-export const DOCUMENT_DATA: DocumentData = getDocumentDataFromNode(document);
 
 export const READONLY_COLOR = "#eee";
 

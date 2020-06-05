@@ -24,7 +24,7 @@ export class AccessBitcoin extends Screen {
     const steps: WizardStepBody[] = [
       new Step1_Instructions(),
       new Step2_LoadShares(),
-      new Step3_PerformActions(),
+      new Step3_PerformActions(false /* showSecurityConfigControls */),
     ];
 
     const initialWizardState = {
@@ -43,18 +43,26 @@ export class AccessBitcoin extends Screen {
 }
 
 export class AccessBitcoinFastForward extends Screen {
-  home: Screen;
-  wizardState: object;
+  private home: Screen;
+  private wizardState: object;
+  private showSecurityConfigControls: boolean;
 
-  constructor(home: Screen, wizardState: object) {
+  constructor(
+    home: Screen,
+    wizardState: object,
+    showSecurityConfigControls: boolean
+  ) {
     super("AccessBitcoinFastForward", localize("Access bitcoin"));
     this.setContent(<div class="screen"></div>);
     this.home = home;
     this.wizardState = wizardState;
+    this.showSecurityConfigControls = showSecurityConfigControls;
   }
 
   onmount() {
-    const steps: WizardStepBody[] = [new Step3_PerformActions()];
+    const steps: WizardStepBody[] = [
+      new Step3_PerformActions(this.showSecurityConfigControls),
+    ];
 
     const wizard: Wizard = new Wizard(
       steps,

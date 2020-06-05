@@ -1,5 +1,3 @@
-export const DOCUMENT_DATA_KEY = "__DOCUMENT_DATA__";
-
 export const replaceAll = (full: string, old: string, neww: string) => {
   if (neww === old) {
     return full;
@@ -17,6 +15,4 @@ export const replaceAll = (full: string, old: string, neww: string) => {
   return full;
 };
 
-// This is not used everywhere yet, sadly
 export const FILENAME = "trove.html";
-export const UNSIGNED_FILENAME = "trove.html"; // "trove_unsigned.html"; The signing stuff is disabled in favor of PGP

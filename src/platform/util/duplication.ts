@@ -1,37 +1,22 @@
-import { completedTemplate } from "../../shared/index_template_utils";
-import { DocumentData, getRawDocumentData } from "../../trove/trove_constants";
-import { canonicalize } from "json-canonicalize";
-import { replaceAll, DOCUMENT_DATA_KEY } from "../../shared/constants";
-import { isEmpty } from "./object";
+import { createTroveWithData } from "../../shared/index_template_utils";
+import { DOCUMENT_DATA, DocumentData } from "../../trove/types/document_data";
 
-export const baseTemplate = (documentData: DocumentData = null) => {
+export const createTroveWithDataInBrowser = (
+  documentData: DocumentData = null
+) => {
   const scripts = Array.from(document.body.querySelectorAll("script")).map(
     (e) => e as HTMLScriptElement
   );
-  const serializedDocumentData =
-    documentData && !isEmpty(documentData)
-      ? canonicalize(documentData)
-      : DOCUMENT_DATA_KEY;
-  return completedTemplate(
-    serializedDocumentData,
+  return createTroveWithData(
+    documentData,
     scripts[0].textContent,
     scripts[1].textContent
   );
 };
 
-export const removeDocumentDataFromText = (text: string) => {
-  const html = document.createElement("html");
-  html.innerHTML = text;
-  const rawDocumentData = getRawDocumentData(html);
-  return replaceAll(text, rawDocumentData, DOCUMENT_DATA_KEY);
-};
-
-export const replaceDocumentData = (
-  text: string,
-  documentData: DocumentData
-) => {
-  const html = document.createElement("html");
-  html.innerHTML = text;
-  const rawDocumentData = getRawDocumentData(html);
-  return replaceAll(text, rawDocumentData, canonicalize(documentData));
+export const createTroveClean = () => {
+  const cleanDocumentData = {
+    dependencies: DOCUMENT_DATA.dependencies || {},
+  } as DocumentData;
+  return createTroveWithDataInBrowser(cleanDocumentData);
 };

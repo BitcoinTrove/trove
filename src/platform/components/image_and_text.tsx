@@ -1,5 +1,5 @@
 import * as React from "jsx-dom"; // Fake React for JSX->DOM support
-import { InternalImage } from "../images/platform_images";
+import { InternalImage } from "../util/image_utils";
 
 export const ImageAndText = ({
   image,

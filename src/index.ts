@@ -15,21 +15,16 @@ import "bulma-steps/dist/css/bulma-steps.min.css";
 import "bulma-checkradio/dist/css/bulma-checkradio.min.css";
 import { Home } from "./trove/screens/home";
 import { JoinHomeScreen } from "./trove/screens/join_home_page";
-import {
-  deserializeEnvelope,
-  IS_DEBUG,
-  DOCUMENT_DATA,
-} from "./trove/trove_constants";
+import { deserializeEnvelope, IS_DEBUG } from "./trove/trove_constants";
 import { getParameterByName, hasParameter } from "./platform/util/query_params";
 import { AccessBitcoinFastForward } from "./trove/wizards/access_bitcoin/access_bitcoin_wizard";
-import { VerifyMessage } from "./trove/screens/verify_message"; // disabled in favor of PGP
 import { canonicalize } from "json-canonicalize";
 import { AddressPage } from "./trove/screens/address_page";
-import { VerifyFile } from "./trove/screens/verify_file"; // disabled in favor of PGP
 import { TroveImages } from "./trove/images/trove_images";
 import { SecretShareEnvelope } from "./trove/types/secret_share_envelope";
 import { networkFromString } from "./trove/util/network";
 import { MasterSeed } from "./trove/types/master_seed";
+import { DOCUMENT_DATA } from "./trove/types/document_data";
 
 document.title = "Trove";
 
@@ -64,47 +59,22 @@ const masterSeed = MasterSeed.fromHex(
   getParameterByName("masterSeed"),
   network
 );
-
-// For firefox
-/* Disabled in favor of PGP
-window.onhashchange = () => {
-  if (location.hash === "#VerifyMessage") {
-    const screen = new VerifyMessage();
-    mount(document.body, screen);
-    screen.show();
-  } else if (location.hash === "#VerifyFile") {
-    const screen = new VerifyFile();
-    mount(document.body, screen);
-    screen.show();
-  }
-};*/
+const addressStrategy = getParameterByName("addressStrategy") || "single";
 
 const addressGenerator = DOCUMENT_DATA.addressGenerator;
 if (addressGenerator) {
   const addressPage: AddressPage = new AddressPage(addressGenerator);
   mount(document.body, addressPage);
   addressPage.show();
-} /* Disabled in favor of PGP
-  else if (location.hash === "#VerifyMessage") {
-  const screen = new VerifyMessage();
-  mount(document.body, screen);
-  screen.show();
-} else if (
-  location.hash === "#VerifyFile"
-) {
-  const screen = new VerifyFile();
-  mount(document.body, screen);
-  screen.show();
-} */ else if (
-  masterSeed &&
-  (IS_DEBUG ||
-    getParameterByName(
-      "debug"
-    )) /* Any debug value needs to be set, even false */
-) {
+} else if (masterSeed && IS_DEBUG) {
   let wizardState = {};
   wizardState["masterSeed"] = masterSeed;
-  const wiz = new AccessBitcoinFastForward(new Home(), wizardState);
+  wizardState["addressStrategyOverride"] = addressStrategy;
+  const wiz = new AccessBitcoinFastForward(
+    new Home(),
+    wizardState,
+    true /* showSecurityConfigControls */
+  );
   mount(document.body, wiz);
   wiz.show();
 } else if (!DOCUMENT_ENVELOPE) {

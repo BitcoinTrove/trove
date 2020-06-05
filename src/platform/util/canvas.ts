@@ -67,15 +67,14 @@ export const textAsCanvas2 = (
   let words = text.split(" ");
   while (words.length > 0) {
     let cutIndex = words.length;
-    let subText = words.slice(0, cutIndex).join(" "); //text.substring(0, cutIndex);
+    let subText = words.slice(0, cutIndex).join(" ");
     let subTextWidth = measureText(subText, font, fontSize)[0];
     while (maxWidth != -1 && subTextWidth > maxWidth) {
       cutIndex -= 1;
-      subText = words.slice(0, cutIndex).join(" "); //text.substring(0, cutIndex);
+      subText = words.slice(0, cutIndex).join(" ");
       subTextWidth = measureText(subText, font, fontSize)[0];
     }
     lines.push(subText);
-    // text = text.substring(cutIndex, text.length);
     words = words.slice(cutIndex, words.length);
   }
   const canvas = document.createElement("canvas");

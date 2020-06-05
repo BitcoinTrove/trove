@@ -1,6 +1,6 @@
 import * as React from "jsx-dom"; // Fake React for JSX->DOM support
-import { SOFTWARE_VERSION } from "../trove_constants";
 import { SecretShareEnvelope } from "../types/secret_share_envelope";
+import { TROVE_VERSION } from "../util/version";
 
 // This might not be used anymore
 export const ShareId = ({ shareId }: { shareId: string }) => {
@@ -17,10 +17,8 @@ export const ShareId = ({ shareId }: { shareId: string }) => {
 
 export const PaperTemplate = ({
   envelope,
-  checksumValue,
 }: {
   envelope: SecretShareEnvelope;
-  checksumValue: string;
 }) => {
   return (
     <div class="paperTemplate">
@@ -31,9 +29,7 @@ export const PaperTemplate = ({
       <br></br>
       <h1>Version</h1>
       <div>
-        <span>
-          {SOFTWARE_VERSION} ({checksumValue})
-        </span>
+        <span>{TROVE_VERSION}</span>
       </div>
       <br></br>
       <h1>Reference Name</h1>
@@ -42,27 +38,35 @@ export const PaperTemplate = ({
       </div>
       <br></br>
       <div class="templateDetailDiv">
-        <h1>Creation Date</h1>
-        <div>
-          <span>{envelope.creationDate}</span>
-        </div>
-      </div>
-      <div class="templateDetailDiv">
         <h1>Share ID</h1>
         <div>
           <span>{envelope.shareId}</span>
         </div>
       </div>
       <div class="templateDetailDiv">
-        <h1>Network</h1>
+        <h1>Creation Date</h1>
         <div>
-          <span>{envelope.network}</span>
+          <span>{envelope.creationDate}</span>
+        </div>
+      </div>
+      <div class="templateDetailDiv">
+        <h1>Threshold</h1>
+        <div>
+          <span>
+            {envelope.numberOfRequiredShares} of {envelope.numberOfShares}
+          </span>
         </div>
       </div>
       <div class="templateDetailDiv">
         <h1>Address Strategy</h1>
         <div>
           <span>{envelope.addressStrategy}</span>
+        </div>
+      </div>
+      <div class="templateDetailDiv">
+        <h1>Network</h1>
+        <div>
+          <span>{envelope.network}</span>
         </div>
       </div>
       <div class="templateDetailDiv">
@@ -79,7 +83,7 @@ export const PaperTemplate = ({
       </div>
       {envelope.slip39PasswordHash ? (
         <div class="templateDetailDiv">
-          <h1>Slip39 Password</h1>
+          <h1>Password</h1>
           <div>
             <span style="display: inline-block; color: transparent; min-width: 120px; border-bottom: 1px solid black;">
               Mpqlh

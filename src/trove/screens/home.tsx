@@ -10,40 +10,28 @@ import {
   ALL_SAFETY_CHECKS_SUCCEEDED,
   BROWSER_IS_SUPPORTED,
 } from "../util/safety_checks";
-import {
-  IS_ALPHA_BUILD,
-  IS_DEBUG,
-  DOCUMENT_DATA,
-  getDocumentDataFromText,
-  SOFTWARE_VERSION,
-} from "../trove_constants";
+import { IS_ALPHA_BUILD, IS_DEBUG } from "../trove_constants";
 import { showJsxInModal } from "../../platform/util/modals";
-import { addressAsCanvasSimple } from "../util/address";
 import { sha256 } from "../../platform/util/checksum";
-import { baseTemplate } from "../../platform/util/duplication";
+import { createTroveWithDataInBrowser } from "../../platform/util/duplication";
 import { download, readText } from "../util/files";
-import { copyTextToClipboard } from "../../platform/util/clipboard";
-import { LicensePage } from "./license_page";
-import { DONATE_ADDRESS, isFileSignatureValid } from "../util/donation";
-import { Slip39Wizard } from "../wizards/paper_only/slip39_wizard";
-import { FILENAME, UNSIGNED_FILENAME } from "../../shared/constants";
+import { PaperRecoveryWizard } from "../wizards/paper_only/paper_recovery_wizard";
 import { TodoApp } from "../../platform/examples/component_reference_example";
 import { htmlRef } from "../../platform/util/html_ref";
+import { VersionInfoPage } from "./version_info_page";
+import { getDocumentDataFromText } from "../types/document_data";
+import { TROVE_VERSION } from "../util/version";
 
 declare var localize: (enText: string) => string;
 
 export class Home extends Screen {
   createSharesWizard?: CreateSharesWizard = null;
-  slip39Wizard?: Slip39Wizard = null;
+  paperRecoveryWizard?: PaperRecoveryWizard = null;
   aboutPage?: AboutPage = null;
-  licensePage?: LicensePage = null;
+  versionInfoPage?: VersionInfoPage = null;
 
   createSharesButton = htmlRef();
   about = htmlRef();
-  verifyButton = htmlRef();
-  downloadButton = htmlRef();
-  donateButton = htmlRef();
-  licenseButton = htmlRef();
 
   constructor() {
     super("Home", "");
@@ -66,23 +54,6 @@ export class Home extends Screen {
             </h1>
           </div>
 
-          {/* Disabled in favour of PGP signing
-          DOCUMENT_DATA.signature ? null : (
-            <article class="message is-danger">
-              <div class="message-body" style="text-align: center;">
-                <span>This file is not signed.</span>
-              </div>
-            </article>
-          )*/}
-          {/* Disabled in favour of PGP signing
-          DOCUMENT_DATA.signature != null && !isFileSignatureValid() ? (
-            <article class="message is-danger">
-              <div class="message-body" style="text-align: center;">
-                <span>This file is signed with an invalid signature.</span>
-              </div>
-            </article>
-          ) : null*/}
-
           <article ref={environmentMessage} class="message is-info">
             <div class="message-body">
               <div class="messageBodyHeading">
@@ -102,7 +73,7 @@ export class Home extends Screen {
                 />
                 <li
                   innerHTML={localize(
-                    '<a href="https://wikipedia.org/wiki/Tails_(operating_system)" target="_blank">Tails Linux</a> ensures that no state of the environment is left behind when you are done.'
+                    '<a href="https://wikipedia.org/wiki/Tails_(operating_system)" target="_blank">Tails Linux</a> ensures that the environment state is destroyed when you are done.'
                   )}
                 />
               </ul>
@@ -157,26 +128,23 @@ export class Home extends Screen {
                   </button>
                 </td>
               </tr>
-              {IS_DEBUG ? (
-                <tr>
-                  <td>
-                    <button
-                      class="button is-outlined is-success"
-                      style="border-style: dashed;"
-                      onClick={(e) => {
-                        if (this.slip39Wizard) {
-                          unmount(document.body, this.slip39Wizard);
-                        }
-                        this.slip39Wizard = new Slip39Wizard(this);
-                        mount(document.body, this.slip39Wizard);
-                        this.slip39Wizard.show();
-                      }}
-                    >
-                      {localize("Slip39 Recovery")}
-                    </button>
-                  </td>
-                </tr>
-              ) : null}
+              <tr>
+                <td>
+                  <button
+                    class="button is-outlined is-success"
+                    onClick={(e) => {
+                      if (this.paperRecoveryWizard) {
+                        unmount(document.body, this.paperRecoveryWizard);
+                      }
+                      this.paperRecoveryWizard = new PaperRecoveryWizard(this);
+                      mount(document.body, this.paperRecoveryWizard);
+                      this.paperRecoveryWizard.show();
+                    }}
+                  >
+                    {localize("Paper Recovery")}
+                  </button>
+                </td>
+              </tr>
               {IS_DEBUG ? (
                 <tr>
                   <td>
@@ -198,9 +166,7 @@ export class Home extends Screen {
                             );
                             return;
                           }
-                          const checksumValue: string = sha256(
-                            baseTemplate(DOCUMENT_DATA)
-                          );
+
                           const hideDialog = showJsxInModal(
                             "Update share",
                             <article class="message is-danger">
@@ -212,9 +178,7 @@ export class Home extends Screen {
                                   <li style="list-style: decimal;">
                                     The code from this file
                                     <ul style="margin-left: 32px; list-style: circle;">
-                                      <li>
-                                        {SOFTWARE_VERSION} ({checksumValue})
-                                      </li>
+                                      <li>{TROVE_VERSION}</li>
                                     </ul>
                                   </li>
                                   <li style="list-style: decimal;">
@@ -250,7 +214,7 @@ export class Home extends Screen {
                                 class="button is-danger"
                                 onClick={(e) => {
                                   download(
-                                    baseTemplate(documentData),
+                                    createTroveWithDataInBrowser(documentData),
                                     documentData.envelope.shareNames[
                                       documentData.envelope.thisSharesIndex
                                     ]
@@ -280,40 +244,17 @@ export class Home extends Screen {
               <tr>
                 <td>
                   <button
-                    ref={this.verifyButton}
                     class="button is-info is-outlined"
+                    onClick={(e) => {
+                      if (this.versionInfoPage) {
+                        unmount(document.body, this.versionInfoPage);
+                      }
+                      this.versionInfoPage = new VersionInfoPage(this);
+                      mount(document.body, this.versionInfoPage);
+                      this.versionInfoPage.show();
+                    }}
                   >
-                    {localize("Verify this file")}
-                  </button>
-                </td>
-              </tr>
-              <tr>
-                <td>
-                  <button
-                    ref={this.downloadButton}
-                    class="button is-info is-outlined"
-                  >
-                    {localize("Copy Trove")}
-                  </button>
-                </td>
-              </tr>
-              <tr>
-                <td>
-                  <button
-                    ref={this.donateButton}
-                    class="button is-info is-outlined"
-                  >
-                    {localize("Donate")}
-                  </button>
-                </td>
-              </tr>
-              <tr>
-                <td>
-                  <button
-                    ref={this.licenseButton}
-                    class="button is-info is-outlined"
-                  >
-                    {localize("Licenses")}
+                    {localize("Version Info")}
                   </button>
                 </td>
               </tr>
@@ -376,80 +317,6 @@ export class Home extends Screen {
       this.aboutPage = new AboutPage(this);
       mount(document.body, this.aboutPage);
       this.aboutPage.show();
-    };
-
-    this.verifyButton.events().onclick = () => {
-      const checksum = sha256(baseTemplate(DOCUMENT_DATA));
-      const modalContent = (
-        <div>
-          <p>
-            {localize("This file claims to have a sha256 checksum of")}{" "}
-            <strong>{checksum}</strong>
-          </p>
-          <br></br>
-          <span
-            innerHTML={localize(
-              "You need to do <strong>both</strong> of these steps to verify the file:"
-            )}
-          />
-          <ol style="padding-left: 32px;">
-            <li
-              innerHTML={localize(
-                "Use <code>sha256sum trove.html</code> to verify that this is the correct checksum."
-              )}
-            ></li>
-            <li
-              innerHTML={localize(
-                "Get confirmation, from <strong>a source you trust</strong>, that this is the correct checksum for Trove."
-              )}
-            ></li>
-          </ol>
-        </div>
-      );
-      showJsxInModal(localize("Verify"), modalContent, false);
-    };
-
-    this.downloadButton.events().onclick = () => {
-      download(
-        baseTemplate(DOCUMENT_DATA),
-        DOCUMENT_DATA.signature ? FILENAME : UNSIGNED_FILENAME
-      );
-    };
-
-    this.donateButton.events().onclick = () => {
-      addressAsCanvasSimple(DONATE_ADDRESS, (e, canvas) => {
-        const copyToClipboard = htmlRef();
-        const modal = (
-          <div class="donationModal">
-            {canvas}
-            <div>
-              <span>
-                <strong>{DONATE_ADDRESS}</strong>
-              </span>
-            </div>
-            <br></br>
-            <button
-              ref={copyToClipboard}
-              class="button is-outlined"
-              onClick={(e) => {
-                copyTextToClipboard(DONATE_ADDRESS, copyToClipboard);
-              }}
-            >
-              {localize("Copy to clipboard")}
-            </button>
-          </div>
-        );
-        showJsxInModal(localize("Donate"), modal, false);
-      });
-    };
-
-    this.licenseButton.events().onclick = (e) => {
-      if (this.licensePage) {
-        unmount(document.body, this.licensePage);
-      }
-      this.licensePage = new LicensePage(this);
-      mount(document.body, this.licensePage);
-      this.licensePage.show();
     };
   }
 }

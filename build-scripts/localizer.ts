@@ -1,4 +1,4 @@
-import { replaceAll, UNSIGNED_FILENAME } from "../src/shared/constants";
+import { replaceAll, FILENAME } from "../src/shared/constants";
 
 // NOTE - I don't think this is being properly interpretted as ts. It seems to be only seen as js
 // TODO - Look at switching to synchronous calls (fs.readFileSync)
@@ -56,7 +56,7 @@ locFiles.forEach((filename) => {
 
 var textToIndex = new Map();
 var foundText = [];
-fs.readFile("release/" + UNSIGNED_FILENAME, "utf8", (err, contents) => {
+fs.readFile("release/" + FILENAME, "utf8", (err, contents) => {
   if (err) throw err;
 
   var $ = cheerio.load(contents);
@@ -206,7 +206,7 @@ fs.readFile("release/" + UNSIGNED_FILENAME, "utf8", (err, contents) => {
          };
       </script>`
   );
-  fs.writeFile("release/" + UNSIGNED_FILENAME, contents, (err) => {
+  fs.writeFile("release/" + FILENAME, contents, (err) => {
     if (err) throw err;
     console.log("localize function overwritten");
   });

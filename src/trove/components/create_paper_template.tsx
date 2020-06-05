@@ -12,24 +12,17 @@ declare var localize: (enText: string) => string;
 
 export const CreatePaperTemplate = ({
   envelope,
-  checksumValue,
   slip39Password,
   onFinished,
 }: {
   envelope: SecretShareEnvelope;
-  checksumValue: string;
   slip39Password: string;
   onFinished: () => void;
 }) => {
   removeAnyModals();
 
   const filename: string = envelope.shareNames[envelope.thisSharesIndex];
-  const paperTemplate = (
-    <PaperTemplate
-      envelope={envelope}
-      checksumValue={checksumValue}
-    ></PaperTemplate>
-  );
+  const paperTemplate = <PaperTemplate envelope={envelope}></PaperTemplate>;
 
   const step1 = (
     <div style="border-top: 1px solid lightgrey; padding-top: 20px">
@@ -274,9 +267,6 @@ export const CreatePaperTemplate = ({
       {localize("Next word")}
     </button>
   );
-
-  console.log("nextButton");
-  console.log(nextButton);
 
   const step3 = (
     <div style="border-top: 1px solid lightgrey; padding-top: 20px">

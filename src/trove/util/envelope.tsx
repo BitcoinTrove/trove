@@ -5,14 +5,13 @@ import {
   IS_DEBUG,
   IS_DEV,
   serializeEnvelope,
-  DocumentData,
   DEBUG_DISPLAY,
 } from "../trove_constants";
 import { showTextInModal, showJsxModal } from "../../platform/util/modals";
-import { baseTemplate } from "../../platform/util/duplication";
-import { sha256 } from "../../platform/util/checksum";
+import { createTroveWithDataInBrowser } from "../../platform/util/duplication";
 import { CreatePaperTemplate } from "../components/create_paper_template";
 import { SecretShareEnvelope } from "../types/secret_share_envelope";
+import { DocumentData, DOCUMENT_DATA } from "../types/document_data";
 
 declare var localize: (enText: string) => string;
 
@@ -91,10 +90,12 @@ export const createHtmlFromEnvelope = (
     progress.setValue(value);
   };
 
+  // TODO - what about the other stuff that might be in DocumentData?
   const documentData: DocumentData = {
     envelope: envelope,
+    dependencies: DOCUMENT_DATA.dependencies,
   };
-  const newHTML = baseTemplate(documentData);
+  const newHTML = createTroveWithDataInBrowser(documentData);
   downloadButton.events().onclick = () => {
     download(newHTML, filename);
     downloadButton.removeClass("is-success", "is-danger");
@@ -104,11 +105,9 @@ export const createHtmlFromEnvelope = (
   };
 
   createPaperBackup.events().onclick = async () => {
-    const checksumValue: string = await sha256(baseTemplate());
     const hideCreatePaperBackup = showJsxModal(
       <CreatePaperTemplate
         envelope={envelope}
-        checksumValue={checksumValue}
         slip39Password={slip39Password}
         onFinished={() => {
           templateDone = true;

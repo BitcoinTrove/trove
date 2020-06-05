@@ -1,9 +1,6 @@
 import { WizardStepBody } from "../../../platform/components/wizard";
 import * as React from "jsx-dom"; // Fake React for JSX->DOM support
-import {
-  getDocumentDataFromText,
-  isRelatedEnvelope,
-} from "../../trove_constants";
+import { isRelatedEnvelope } from "../../trove_constants";
 import { RecoverFromSlip39WordsModal } from "../../components/recover_from_slip39_words";
 import { showJsxModal } from "../../../platform/util/modals";
 import { sha256 } from "../../../platform/util/checksum";
@@ -13,6 +10,7 @@ import { readText } from "../../util/files";
 import { SecretShareEnvelope } from "../../types/secret_share_envelope";
 import { MasterSeed } from "../../types/master_seed";
 import { SecretSplitter } from "../../util/secret_splitter";
+import { getDocumentDataFromText } from "../../types/document_data";
 
 declare var localize: (enText: string) => string;
 

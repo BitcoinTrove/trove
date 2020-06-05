@@ -13,27 +13,24 @@ import {
   IS_DEBUG,
   serializeEnvelope,
   isTestnetShare,
-  DOCUMENT_DATA,
 } from "../trove_constants";
 import { AboutPage } from "./about_page";
-import { showTextInModal, showJsxInModal } from "../../platform/util/modals";
-import { baseTemplate } from "../../platform/util/duplication";
-import { download } from "../util/files";
-import { LicensePage } from "./license_page";
-import { FILENAME, UNSIGNED_FILENAME } from "../../shared/constants";
+import { showJsxInModal } from "../../platform/util/modals";
 import {
   hideElements,
   showElements,
 } from "../../platform/util/extended_html_element";
 import { SecretShareEnvelope } from "../types/secret_share_envelope";
 import { htmlRef } from "../../platform/util/html_ref";
+import { copyTextToClipboard } from "../../platform/util/clipboard";
+import { VersionInfoPage } from "./version_info_page";
 
 declare var localize: (enText: string) => string;
 
 export class JoinHomeScreen extends Screen {
   loadedWizardScreen?: Screen = null;
   about?: Screen = null;
-  licensePage?: LicensePage = null;
+  versionInfoPage?: VersionInfoPage = null;
   baseEnvelope: SecretShareEnvelope;
 
   private whatIsThis = htmlRef();
@@ -98,7 +95,7 @@ export class JoinHomeScreen extends Screen {
                 />
                 <li
                   innerHTML={localize(
-                    '<a href="https://wikipedia.org/wiki/Tails_(operating_system)" target="_blank">Tails Linux</a> ensures that no state of the environment is left behind when you are done.'
+                    '<a href="https://wikipedia.org/wiki/Tails_(operating_system)" target="_blank">Tails Linux</a> ensures that the environment state is destroyed when you are done.'
                   )}
                 />
               </ul>
@@ -240,31 +237,15 @@ export class JoinHomeScreen extends Screen {
                   <button
                     class="button is-info is-outlined"
                     onClick={(e) => {
-                      // The file might not actually be signed
-                      download(
-                        baseTemplate(),
-                        DOCUMENT_DATA.signature ? FILENAME : UNSIGNED_FILENAME
-                      );
-                    }}
-                  >
-                    {localize("Copy Trove")}
-                  </button>
-                </td>
-              </tr>
-              <tr>
-                <td>
-                  <button
-                    class="button is-info is-outlined licenseButton"
-                    onClick={(e) => {
-                      if (this.licensePage) {
-                        unmount(document.body, this.licensePage);
+                      if (this.versionInfoPage) {
+                        unmount(document.body, this.versionInfoPage);
                       }
-                      this.licensePage = new LicensePage(this);
-                      mount(document.body, this.licensePage);
-                      this.licensePage.show();
+                      this.versionInfoPage = new VersionInfoPage(this);
+                      mount(document.body, this.versionInfoPage);
+                      this.versionInfoPage.show();
                     }}
                   >
-                    {localize("Licenses")}
+                    {localize("Version Info")}
                   </button>
                 </td>
               </tr>
@@ -343,9 +324,42 @@ export class JoinHomeScreen extends Screen {
     if (IS_DEBUG) {
       this.debugPeekButton.show();
       this.debugPeekButton.events().onclick = () => {
-        showTextInModal(
+        /*showTextInModal(
           localize("Envelope data"),
           serializeEnvelope(this.baseEnvelope)
+        );*/
+        const envelopeData = serializeEnvelope(this.baseEnvelope);
+        const copyData = htmlRef();
+        const copyLink = htmlRef();
+        showJsxInModal(
+          localize("Envelope data"),
+          <div>
+            <pre style="white-space: pre-wrap; padding: 10px;">
+              {envelopeData}
+            </pre>
+            <button
+              ref={copyData}
+              class="button is-info is-outlined"
+              onClick={(e) => {
+                copyTextToClipboard(envelopeData, copyData);
+              }}
+            >
+              {localize("Copy data to clipboard")}
+            </button>
+            <button
+              ref={copyLink}
+              class="button is-info is-outlined"
+              onClick={(e) => {
+                copyTextToClipboard(
+                  "http://localhost:1234/?data=" + envelopeData,
+                  copyLink
+                );
+              }}
+            >
+              {localize("Copy localhost link with data")}
+            </button>
+          </div>,
+          true
         );
       };
     }
