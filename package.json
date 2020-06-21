@@ -54,6 +54,7 @@
     "pako": "^1.0.11",
     "parcel-plugin-inliner": "^1.0.10",
     "qrcode": "^1.4.4",
+    "qrreader": "^1.0.5",
     "redom": "^3.24.0",
     "removeNPMAbsolutePaths": "^2.0.0",
     "slip39": "^0.1.6",

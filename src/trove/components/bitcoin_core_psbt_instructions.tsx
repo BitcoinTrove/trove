@@ -6,6 +6,10 @@ import { AddressStrategy } from "../types/address_strategy";
 import { isValidAddress } from "../util/address";
 import { htmlRefs, htmlRef } from "../../platform/util/html_ref";
 import { download } from "../util/files";
+import {
+  getQrCodeFromCamera,
+  QR_READER,
+} from "../../platform/util/camera_helper";
 
 declare var localize: (enText: string) => string;
 
@@ -190,7 +194,7 @@ export const BitcoinCoreMoveAllCreatePsbt = ({
         <label class="label">
           {localize("Bitcoin address you are sending to")}
         </label>
-        <div class="control">
+        <div class="control" style="display: flex;">
           <input
             class="input is-info"
             type="text"
@@ -225,6 +229,23 @@ export const BitcoinCoreMoveAllCreatePsbt = ({
               sendToAddress.setText(addressEntered.getValueString());
             }}
           ></input>
+          <button
+            style={{
+              dislay: QR_READER.isMediaStreamAPISupported ? "" : "none",
+            }}
+            class="button is-outlined"
+            onClick={async (e) => {
+              try {
+                const address = await getQrCodeFromCamera();
+                addressEntered.setValue(address.toLowerCase());
+                addressEntered.dispatchEvent(new Event("input"));
+              } catch (e) {
+                // nothing
+              }
+            }}
+          >
+            Scan QR
+          </button>
         </div>
         <p ref={addressEnteredHelp} class="help"></p>
       </div>

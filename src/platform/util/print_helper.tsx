@@ -1,23 +1,5 @@
 import { mount, unmount } from "redom";
-
-const hideWhatsVisible = () => {
-  let elements: HTMLElement[] = [];
-  let originalDisplay: string[] = [];
-  for (let i = 0; i < document.body.children.length; ++i) {
-    const child = document.body.children[i];
-    if (child instanceof HTMLElement) {
-      elements.push(child);
-      originalDisplay.push(child.style.display);
-      child.style.display = "none";
-    }
-  }
-  // showItAgain
-  return () => {
-    for (let i = 0; i < elements.length; ++i) {
-      elements[i].style.display = originalDisplay[i];
-    }
-  };
-};
+import { hideWhatsVisible } from "./effects";
 
 export const print = (html: JSX.Element, isPreview: boolean) => {
   const showItAgainF = hideWhatsVisible();
