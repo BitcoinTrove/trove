@@ -12,7 +12,7 @@ import { lockInputs } from "../../platform/util/extended_html_element";
 import { readBase64, downloadBase64 } from "../util/files";
 import { copyTextToClipboard } from "../../platform/util/clipboard";
 import { SecurityConfig } from "../types/security_config";
-import { ValueRef } from "../../platform/util/value_provider";
+import { ValueRef } from "../../platform/util/value_ref";
 
 declare var localize: (enText: string) => string;
 

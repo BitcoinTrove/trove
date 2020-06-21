@@ -10,7 +10,7 @@ import { smoothFinish } from "../../platform/util/effects";
 import { ECPair } from "bitcoinjs-lib";
 import * as bitcoinMessage from "bitcoinjs-message";
 import { SecurityConfig } from "../types/security_config";
-import { ValueRef } from "../../platform/util/value_provider";
+import { ValueRef } from "../../platform/util/value_ref";
 
 declare var localize: (enText: string) => string;
 

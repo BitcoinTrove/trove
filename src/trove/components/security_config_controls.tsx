@@ -6,7 +6,7 @@ import { MasterSeed } from "../types/master_seed";
 import { AddressStrategy } from "../types/address_strategy";
 import { SecretShareEnvelope } from "../types/secret_share_envelope";
 import { SecurityConfig } from "../types/security_config";
-import { ValueRef } from "../../platform/util/value_provider";
+import { ValueRef } from "../../platform/util/value_ref";
 
 declare var localize: (enText: string) => string;
 

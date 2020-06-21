@@ -14,7 +14,7 @@ export const createTroveWithData = (
       </head>
       <body>
         <textarea id="data" class="data" disabled="disabled" style="display: none;">${serializedDocumentData}</textarea>
-          <script type="text/javascript">${pakoScript}</script>
+        <script type="text/javascript">${pakoScript}</script>
         <script type="text/javascript">${ourScript}</script>
       </body>
     </html>`;

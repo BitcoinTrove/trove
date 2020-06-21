@@ -11,7 +11,7 @@ import { ViewAdditionalDetails } from "./view_additional_details";
 import { DeriveSingleAddress } from "./derive_single_address";
 import { DeriveAddresses } from "./derive_addresses";
 import { SecurityConfig } from "../types/security_config";
-import { ValueRef } from "../../platform/util/value_provider";
+import { ValueRef } from "../../platform/util/value_ref";
 
 declare var localize: (enText: string) => string;
 

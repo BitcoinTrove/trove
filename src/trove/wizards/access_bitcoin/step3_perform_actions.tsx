@@ -22,7 +22,7 @@ import { SignTransaction } from "../../components/sign_transaction";
 import { Other } from "../../components/other";
 import { SecurityConfig } from "../../types/security_config";
 import { compRef } from "../../../platform/util/component_references";
-import { valueRef } from "../../../platform/util/value_provider";
+import { valueRef } from "../../../platform/util/value_ref";
 
 declare var localize: (enText: string) => string;
 

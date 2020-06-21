@@ -4,7 +4,7 @@ import { htmlRef } from "../../platform/util/html_ref";
 import { PublicAddress } from "./public_address";
 import { PublicAddressMulti } from "./public_address_multi";
 import { SecurityConfig } from "../types/security_config";
-import { ValueRef } from "../../platform/util/value_provider";
+import { ValueRef } from "../../platform/util/value_ref";
 
 export const PublicQrContainer = ({
   securityConfig,
