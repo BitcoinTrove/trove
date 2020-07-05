@@ -1,6 +1,6 @@
 import * as React from "jsx-dom"; // Fake React for JSX->DOM support
 import { SecretShareEnvelope } from "../types/secret_share_envelope";
-import { TROVE_VERSION } from "../util/version";
+import { TROVE_VERSION_AND_HASH, TROVE_VERSION } from "../util/version";
 
 // This might not be used anymore
 export const ShareId = ({ shareId }: { shareId: string }) => {
@@ -24,12 +24,14 @@ export const PaperTemplate = ({
     <div class="paperTemplate">
       <h1>Software</h1>
       <div>
-        <span>https://bitcointrove.github.io/</span>
+        <span>
+          https://bitcointrove.github.io/release/{TROVE_VERSION}/trove.html
+        </span>
       </div>
       <br></br>
       <h1>Version</h1>
       <div>
-        <span>{TROVE_VERSION}</span>
+        <span>{TROVE_VERSION_AND_HASH}</span>
       </div>
       <br></br>
       <h1>Reference Name</h1>

@@ -56,7 +56,8 @@ const networkString = hasParameter("network")
   : "testnet";
 const network = networkFromString(networkString);
 const masterSeed = MasterSeed.fromHex(
-  getParameterByName("masterSeed"),
+  getParameterByName("masterSeed") ||
+    "0000000000000000000000000000000000000000000000000000000000000000",
   network
 );
 const addressStrategy = getParameterByName("addressStrategy") || "single";
@@ -66,7 +67,7 @@ if (addressGenerator) {
   const addressPage: AddressPage = new AddressPage(addressGenerator);
   mount(document.body, addressPage);
   addressPage.show();
-} else if (masterSeed && IS_DEBUG) {
+} else if (hasParameter("masterSeed") && IS_DEBUG) {
   let wizardState = {};
   wizardState["masterSeed"] = masterSeed;
   wizardState["addressStrategyOverride"] = addressStrategy;

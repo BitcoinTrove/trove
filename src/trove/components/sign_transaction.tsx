@@ -13,6 +13,11 @@ import { readBase64, downloadBase64 } from "../util/files";
 import { copyTextToClipboard } from "../../platform/util/clipboard";
 import { SecurityConfig } from "../types/security_config";
 import { ValueRef } from "../../platform/util/value_ref";
+import {
+  SimpleTable,
+  SimpleTableRef,
+} from "../../platform/components/simple_table";
+import { compRef } from "../../platform/util/component_references";
 
 declare var localize: (enText: string) => string;
 
@@ -28,6 +33,8 @@ export const SignTransaction = ({
   const unsignedTransactionContainer = htmlRef();
   const transactionToSign = htmlRef();
   const signPsbtProgress = htmlRef();
+  const feeTable = htmlRef();
+  const simpleTable = compRef<SimpleTableRef>();
   const signPsbtBack = htmlRef();
   const loadFromFile = htmlRef();
   const invalidPsbt = htmlRef();
@@ -54,6 +61,7 @@ export const SignTransaction = ({
   });
 
   const handleError = (error) => {
+    feeTable.hide();
     signTransaction.setDisabled(true);
     downloadUnsigned.setDisabled(true);
     invalidPsbt.show();
@@ -131,9 +139,7 @@ export const SignTransaction = ({
       </article>
       <div ref={unsignedTransactionContainer} style="display: none;">
         <span>
-          {localize(
-            "Copy and paste the transaction (base64 encoded) below to sign it."
-          )}
+          {localize("Paste a transaction (base64 encoded) below to sign it.")}
         </span>
         <textarea
           ref={transactionToSign}
@@ -155,6 +161,7 @@ export const SignTransaction = ({
               rawTransactionError.empty();
               transactionToSign.classList().remove("is-danger");
               signTransaction.classList().remove("is-danger");
+              feeTable.hide();
 
               masterSeed.signPsbtWithNPrivateKeys(
                 psbt,
@@ -169,9 +176,18 @@ export const SignTransaction = ({
 
                     // hanndle finalization
                     try {
-                      rawTransaction.setValue(
-                        psbt.finalizeAllInputs().extractTransaction().toHex()
-                      );
+                      const tx = psbt.finalizeAllInputs().extractTransaction();
+
+                      let totalSpent = 0;
+                      tx.outs.forEach((output) => (totalSpent += output.value));
+                      const fee = psbt.getFee();
+                      const feePercent = (fee / (totalSpent + fee)) * 100;
+                      simpleTable.setData([
+                        [fee + "", feePercent + "", psbt.getFeeRate() + ""],
+                      ]);
+                      feeTable.show();
+
+                      rawTransaction.setValue(tx.toHex());
                       rawTransactionContainer.show();
                     } catch (error) {
                       rawTransactionContainer.hide();
@@ -204,6 +220,19 @@ export const SignTransaction = ({
           class="progress is-info"
           style="display: none;"
         ></progress>
+        <div ref={feeTable} style="display: none; margin: 8px 0;">
+          <label class="label">{localize("Transaction fees")}</label>
+          <div class="control">
+            <SimpleTable
+              simpleTable={simpleTable}
+              headers={[
+                <span>Satoshis</span>,
+                <span>Percent of transaction</span>,
+                <span>Satoshis per byte</span>,
+              ]}
+            ></SimpleTable>
+          </div>
+        </div>
         <div style="display: flex;">
           <button
             ref={signPsbtBack}

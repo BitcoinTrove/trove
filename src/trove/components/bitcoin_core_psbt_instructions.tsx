@@ -10,6 +10,11 @@ import {
   getQrCodeFromCamera,
   QR_READER,
 } from "../../platform/util/camera_helper";
+import {
+  SimpleTable,
+  SimpleTableRef,
+} from "../../platform/components/simple_table";
+import { compRef } from "../../platform/util/component_references";
 
 declare var localize: (enText: string) => string;
 
@@ -293,7 +298,9 @@ export const BitcoinCoreMoveAllCreatePsbt = ({
     unsignedPsbtHelp,
     signingProgress,
     unsignedInputContainer,
-  ] = htmlRefs(7);
+    feeTable,
+  ] = htmlRefs(8);
+  const simpleTable = compRef<SimpleTableRef>();
   const step3 = (
     <div>
       <h1>{localize("5. Create the PSBT")}</h1>
@@ -346,12 +353,23 @@ export const BitcoinCoreMoveAllCreatePsbt = ({
                           .bulma()
                           .danger()
                           .setText(error.message);
+                        feeTable.hide();
                         return;
                       }
 
-                      signedTransactionHex.setText(
-                        psbt.extractTransaction().toHex()
-                      );
+                      const tx = psbt.extractTransaction();
+                      signedTransactionHex.setText(tx.toHex());
+
+                      // Update fee table
+                      let totalSpent = 0;
+                      tx.outs.forEach((output) => (totalSpent += output.value));
+                      const fee = psbt.getFee();
+                      const feePercent = (fee / (totalSpent + fee)) * 100;
+                      simpleTable.setData([
+                        [fee + "", feePercent + "", psbt.getFeeRate() + ""],
+                      ]);
+                      feeTable.show();
+
                       step3Continue.setDisabled(false);
                       unsignedPsbtHelp
                         .bulma()
@@ -376,7 +394,19 @@ export const BitcoinCoreMoveAllCreatePsbt = ({
         </div>
         <p ref={unsignedPsbtHelp} class="help"></p>
       </div>
-      <br></br>
+      <div ref={feeTable} class="field" style="display: none;">
+        <label class="label">{localize("Transaction fees")}</label>
+        <div class="control">
+          <SimpleTable
+            simpleTable={simpleTable}
+            headers={[
+              <span>Satoshis</span>,
+              <span>Percent of transaction</span>,
+              <span>Satoshis per byte</span>,
+            ]}
+          ></SimpleTable>
+        </div>
+      </div>
       <div style="display: flex">
         <button
           ref={step3Continue}

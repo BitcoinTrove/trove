@@ -10,3 +10,17 @@ export const randomInt = (max: number) => {
     WINDOW_CRYPTO.getRandomValues(new Uint32Array(1))[0] / 2 ** 32;
   return Math.min(Math.floor(mathRandom * max), max - 1);
 };
+
+export const randomOrder = (size: number) => {
+  let order: number[] = [];
+  for (let i = 0; i < size; ++i) {
+    order.push(i);
+  }
+  for (let i = 0; i < order.length; ++i) {
+    const temp = order[i];
+    const randomIndexAfter = randomInt(order.length);
+    order[i] = order[randomIndexAfter];
+    order[randomIndexAfter] = temp;
+  }
+  return order;
+};

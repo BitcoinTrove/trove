@@ -10,9 +10,12 @@ import {
   ALL_SAFETY_CHECKS_SUCCEEDED,
   BROWSER_IS_SUPPORTED,
 } from "../util/safety_checks";
-import { IS_ALPHA_BUILD, IS_DEBUG } from "../trove_constants";
+import {
+  IS_ALPHA_BUILD,
+  IS_DEBUG,
+  DEV_AND_DEBUG_DISPLAY,
+} from "../trove_constants";
 import { showJsxInModal } from "../../platform/util/modals";
-import { sha256 } from "../../platform/util/checksum";
 import { createTroveWithDataInBrowser } from "../../platform/util/duplication";
 import { download, readText } from "../util/files";
 import { PaperRecoveryWizard } from "../wizards/paper_only/paper_recovery_wizard";
@@ -20,7 +23,7 @@ import { TodoApp } from "../../platform/examples/component_reference_example";
 import { htmlRef } from "../../platform/util/html_ref";
 import { VersionInfoPage } from "./version_info_page";
 import { getDocumentDataFromText } from "../types/document_data";
-import { TROVE_VERSION } from "../util/version";
+import { TROVE_VERSION_AND_HASH } from "../util/version";
 
 declare var localize: (enText: string) => string;
 
@@ -45,7 +48,6 @@ export class Home extends Screen {
     this.setContent(
       <div class="screen">
         {/*<TodoApp></TodoApp>*/}
-
         <section class="section">
           <div class="container" style="text-align: center;">
             <img src={TroveImages.Logo200x200.src} width="200" height="200" />
@@ -118,6 +120,21 @@ export class Home extends Screen {
 
           <div class="container">
             <table ref={buttonTable} class="homeTable" style="display: none;">
+              <tr style={{ display: DEV_AND_DEBUG_DISPLAY }}>
+                <td>
+                  <button
+                    style="border-style: dashed;"
+                    class="button is-info is-outlined"
+                    onClick={(e) => {
+                      window.location.assign(
+                        "http://localhost:1234/?masterSeed"
+                      );
+                    }}
+                  >
+                    {localize("Actions Screen")}
+                  </button>
+                </td>
+              </tr>
               <tr>
                 <td>
                   <button
@@ -178,7 +195,7 @@ export class Home extends Screen {
                                   <li style="list-style: decimal;">
                                     The code from this file
                                     <ul style="margin-left: 32px; list-style: circle;">
-                                      <li>{TROVE_VERSION}</li>
+                                      <li>{TROVE_VERSION_AND_HASH}</li>
                                     </ul>
                                   </li>
                                   <li style="list-style: decimal;">

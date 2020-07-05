@@ -1,23 +1,141 @@
 import { removeAnyModals } from "../../platform/util/modals";
-import { IS_DEBUG } from "../trove_constants";
+import { IS_DEBUG, DEBUG_DISPLAY } from "../trove_constants";
 import * as React from "jsx-dom"; // Fake React for JSX->DOM support
 import Slip39 from "slip39/src/slip39";
 import { MiniWizard } from "../../platform/components/mini_wizard";
-import {
-  ExtendedHtmlElement,
-  extendHtmlElement,
-} from "../../platform/util/extended_html_element";
-import { SLIP39_WORDS } from "../util/slip39_wrapper";
+import { extendHtmlElement } from "../../platform/util/extended_html_element";
 import { HtmlRef, htmlRefs, htmlRef } from "../../platform/util/html_ref";
 import { SecretShareEnvelope } from "../types/secret_share_envelope";
+import { Slip39WordInput, Slip39WordInputRef } from "./slip39_word_input";
+import { compRef } from "../../platform/util/component_references";
+import { randomOrder } from "../util/random";
+import { newArray } from "../../platform/util/array";
+import { getParameterByName } from "../../platform/util/query_params";
 
-const MAX_SHARE_DATA_LENGTH = 33;
+const FORCE_IN_ORDER =
+  IS_DEBUG && getParameterByName("forceInOrder") === "true";
+const SHARE_DATA_LENGTH = 33; // Number of Slip39 words
+
+interface Slip39WordBoxItemRef {
+  setWord: (word: string) => void;
+  getWord: () => string;
+}
+export const Slip39WordBoxItem = ({
+  slip39WordBoxItem,
+  index,
+  onSelect,
+}: {
+  slip39WordBoxItem: Slip39WordBoxItemRef;
+  index: number;
+  onSelect: (index: number, word: string) => void;
+}) => {
+  let word = "";
+  slip39WordBoxItem.setWord = (newWord: string) => {
+    word = newWord;
+    item.setText(index + 1 + ". " + word);
+  };
+  slip39WordBoxItem.getWord = () => {
+    return word;
+  };
+  const item = extendHtmlElement(
+    <span
+      class="tag is-light is-medium"
+      onClick={(e) => {
+        onSelect(index, word);
+      }}
+    ></span>
+  );
+  slip39WordBoxItem.setWord("");
+  return item.asHtmlElement();
+};
+
+interface ProgressValues {
+  value: number;
+  max: number;
+}
+
+interface Slip39WordBoxRef {
+  setWord: (word: string) => ProgressValues;
+  getIndex: () => number;
+  getWord: () => string;
+  show: () => void;
+  hide: () => void;
+}
+
+export const Slip39WordBox = ({
+  slip39WordBox,
+  onWordSelected,
+  onAllWordsEntered,
+}: {
+  slip39WordBox: Slip39WordBoxRef;
+  onWordSelected: (index: number, word: string) => void;
+  onAllWordsEntered: (isValid: boolean, words: string) => void;
+}) => {
+  const container = htmlRef();
+  const itemRefs = newArray(SHARE_DATA_LENGTH).map((e, i) => {
+    return compRef<Slip39WordBoxItemRef>();
+  });
+  const order = FORCE_IN_ORDER
+    ? newArray(SHARE_DATA_LENGTH)
+    : randomOrder(SHARE_DATA_LENGTH);
+  let index = order.shift();
+  slip39WordBox.setWord = (word: string) => {
+    const overwrite = !!itemRefs[index].getWord();
+    itemRefs[index].setWord(word);
+    if (!overwrite && order.length > 0) {
+      index = order.shift();
+    }
+    const enteredWords = itemRefs
+      .filter((itemRef) => !!itemRef.getWord())
+      .map((itemRef) => itemRef.getWord());
+    if (enteredWords.length === SHARE_DATA_LENGTH) {
+      const enteredWordsString = enteredWords.join(" ");
+      const isValid = Slip39.validateMnemonic(enteredWordsString);
+      onAllWordsEntered(isValid, enteredWordsString);
+    }
+    return {
+      value: enteredWords.length,
+      max: SHARE_DATA_LENGTH,
+    } as ProgressValues;
+  };
+  slip39WordBox.getIndex = () => {
+    return index;
+  };
+  slip39WordBox.getWord = () => {
+    return itemRefs[index].getWord();
+  };
+  slip39WordBox.show = () => {
+    return container.show();
+  };
+  slip39WordBox.hide = () => {
+    return container.hide();
+  };
+  return (
+    <div
+      ref={container}
+      class="tags"
+      style="margin: 16px; background-color: lightgrey; padding: 10px; border-radius: 5px; display: none;"
+    >
+      {itemRefs.map((itemRef, i) => {
+        return (
+          <Slip39WordBoxItem
+            slip39WordBoxItem={itemRef}
+            index={i}
+            onSelect={(newIndex, word) => {
+              index = newIndex;
+              onWordSelected(newIndex, word);
+            }}
+          ></Slip39WordBoxItem>
+        );
+      })}
+    </div>
+  );
+};
 
 export const RecoverFromSlip39WordsModal = ({
   envelopes_not_found,
   envelopes_found,
   baseEnvelope,
-  shareDataLength,
   success,
   shareId,
   wordsInput,
@@ -25,7 +143,6 @@ export const RecoverFromSlip39WordsModal = ({
   envelopes_not_found?: Set<string>;
   envelopes_found?: Set<string>;
   baseEnvelope?: SecretShareEnvelope;
-  shareDataLength?: number;
   success: (envelope: SecretShareEnvelope) => void;
   shareId?: HtmlRef;
   wordsInput?: HtmlRef;
@@ -51,7 +168,18 @@ export const RecoverFromSlip39WordsModal = ({
         <p style="color: #209cee; border: 1px dashed #209cee; display: inline-block; padding: 6px; margin: 10px;">
           Debug: Looking for one of{" "}
           {envelopes_not_found
-            ? Array.from(envelopes_not_found).join(", ")
+            ? Array.from(envelopes_not_found).map((id) => (
+                <span
+                  class="link"
+                  style="color: #209cee;"
+                  onClick={(e) => {
+                    shareId.setValue(id);
+                    shareId.dispatchEvent(new Event("input"));
+                  }}
+                >
+                  {id}
+                </span>
+              ))
             : "unknown"}
         </p>
       ) : null}
@@ -104,7 +232,7 @@ export const RecoverFromSlip39WordsModal = ({
           disabled={true}
           onClick={(e) => {
             wizard.nextStep();
-            wordsInput.focus();
+            slip39WordInput.focusAndSelect();
           }}
         >
           Continue
@@ -115,44 +243,115 @@ export const RecoverFromSlip39WordsModal = ({
 
   const [
     bodyContainer,
-    preText,
-    progress,
-    tagContainer,
+    instructions,
+    progressElement,
+    correctErrorsMessage,
     successMessage,
     errorMessage,
   ] = htmlRefs(6);
   wordsInput = wordsInput || htmlRef();
+  const slip39WordInput = compRef<Slip39WordInputRef>();
+  const slip39WordBox = compRef<Slip39WordBoxRef>();
 
   const step2 = (
     <div>
       <div ref={bodyContainer}>
-        <article class="message">
+        <article class="message" ref={instructions}>
           <div class="message-body">
-            <p>Enter the Slip39 words which are written on the paper share.</p>
+            <p>
+              Enter the Slip39 words which are written on the paper share. The
+              words are requested in a random order. If you make a mistake,
+              carry on. You will have an opportunity to fix any mistakes at the
+              end.
+            </p>
+            <div
+              style={{
+                display: DEBUG_DISPLAY,
+                color: "#209cee",
+                border: "1px dashed #209cee",
+              }}
+            >
+              <p>
+                Debug: words are asked
+                {FORCE_IN_ORDER
+                  ? " in order (forceInOrder=true)"
+                  : " in random order (default)"}
+              </p>
+              <p style={{ display: FORCE_IN_ORDER ? "none" : "" }}>
+                You can enable in order using forceInOrder=true with debug mode.
+              </p>
+            </div>
           </div>
         </article>
-
-        <div class="control has-icons-left" style="width: 300px; margin: auto;">
-          <input
-            ref={wordsInput}
-            class="input is-medium"
-            type="text"
-            placeholder=""
+        <div style="width: 300px; margin: auto;">
+          <Slip39WordInput
+            slip39WordInput={slip39WordInput}
+            onWord={(word) => {
+              const progress = slip39WordBox.setWord(word);
+              slip39WordInput.setValue(
+                slip39WordBox.getIndex(),
+                slip39WordBox.getWord(),
+                false
+              );
+              slip39WordInput.focusAndSelect();
+              progressElement.setProgress(progress.value, progress.max);
+            }}
           />
-          <span ref={preText} class="icon is-left"></span>
         </div>
         <progress
-          ref={progress}
+          ref={progressElement}
           class="progress is-success"
-          style="width: 80%; margin: 16px auto; display: none;"
+          style="width: 80%; margin: 16px auto;"
           value="0"
-          max={shareDataLength}
+          max={SHARE_DATA_LENGTH}
         ></progress>
-        <div
-          ref={tagContainer}
-          class="tags"
-          style="display: none; margin: 16px; background-color: lightgrey; padding: 10px; border-radius: 5px;"
-        ></div>
+        <Slip39WordBox
+          slip39WordBox={slip39WordBox}
+          onWordSelected={(index, word) => {
+            slip39WordInput.setValue(index, word, false);
+            slip39WordInput.focusAndSelect();
+          }}
+          onAllWordsEntered={(isValid, wordsString) => {
+            instructions.hide();
+            progressElement.hide();
+            if (!isValid) {
+              doneButton.setDisabled(true);
+              correctErrorsMessage.show();
+              slip39WordBox.show();
+            } else {
+              slip39WordInput.hide();
+              correctErrorsMessage.hide();
+              slip39WordBox.hide();
+              successMessage.show();
+              doneButton.setDisabled(false);
+              doneButton.events().onclick = () => {
+                removeAnyModals();
+                const fakeEnvelope: SecretShareEnvelope = { ...baseEnvelope };
+                fakeEnvelope.shareData = wordsString;
+                fakeEnvelope.shareId = shareId.getValueString();
+                for (let i = 0; i < baseEnvelope?.shareIds?.length || 0; ++i) {
+                  if (baseEnvelope.shareIds[i] === fakeEnvelope.shareId) {
+                    fakeEnvelope.thisSharesIndex = i;
+                    break;
+                  }
+                }
+                success(fakeEnvelope);
+              };
+            }
+          }}
+        ></Slip39WordBox>
+        <article
+          ref={correctErrorsMessage}
+          class="message is-danger"
+          style="display: none;"
+        >
+          <div class="message-body">
+            <p>
+              The entered words are invalid. Please check the words and correct
+              any errors.
+            </p>
+          </div>
+        </article>
       </div>
 
       <article
@@ -178,11 +377,13 @@ export const RecoverFromSlip39WordsModal = ({
       </article>
     </div>
   );
+  slip39WordInput.setValue(slip39WordBox.getIndex(), "");
+
   const wizard = baseEnvelope
     ? new MiniWizard(step1, step2)
     : new MiniWizard(step2);
 
-  const [doneButton, closeButton, cancelButton, resetButton] = htmlRefs(4);
+  const [doneButton, closeButton, cancelButton] = htmlRefs(3);
   const modal = (
     <div name="modal" class="modal is-active">
       <div class="modal-background"></div>
@@ -196,9 +397,6 @@ export const RecoverFromSlip39WordsModal = ({
         </section>
 
         <footer class="modal-card-foot" style="justify-content: flex-end;">
-          <button ref={resetButton} class="button">
-            Reset
-          </button>
           <button ref={cancelButton} class="button">
             Cancel
           </button>
@@ -216,164 +414,6 @@ export const RecoverFromSlip39WordsModal = ({
 
   cancelButton.events().onclick = () => {
     removeAnyModals();
-  };
-
-  resetButton.events().onclick = () => {
-    shareId.setValue("");
-    continueButton.setDisabled(true);
-    errorMessage.hide();
-    wordsInput.setValue("");
-    progress.setValue(0).hide();
-    doneButton.setDisabled(true);
-    bodyContainer.show();
-    successMessage.hide();
-    tagContainer.empty().hide();
-    addTag();
-    wizard.resetToFirstStep();
-  };
-  let selectedTag: ExtendedHtmlElement | undefined = undefined;
-
-  const finished = () => {
-    doneButton.setDisabled(false);
-    bodyContainer.hide();
-    errorMessage.hide();
-    successMessage.show();
-  };
-
-  const error = () => {
-    errorMessage.show();
-  };
-
-  const wordsArray = (): string[] => {
-    const tags = tagContainer.findAll(".tag");
-    const array = Array.from(tags)
-      .map((element) => element.getAttribute("data"))
-      .filter((element) => element && element.trim());
-    return array;
-  };
-
-  const wordsString2 = (): string => {
-    return wordsArray().join(" ");
-  };
-
-  const countValidWords = (): number => {
-    let valid = 0;
-    wordsArray().forEach((word) => {
-      valid += SLIP39_WORDS.has(word) ? 1 : 0;
-    });
-    return valid;
-  };
-
-  const evaluateWords = () => {
-    if (!shareDataLength || countValidWords() === shareDataLength) {
-      const isValid = Slip39.validateMnemonic(wordsString2());
-      if (isValid) {
-        finished();
-      } else if (shareDataLength) {
-        error();
-      } // else we don't know when the user is done
-    }
-  };
-
-  const updateInput = (i: number) => {
-    wordsInput.setPlaceHolder("Enter word #" + i);
-    preText.setText(i + ".");
-    const areTags = tagContainer.getChildCount() > 1;
-    tagContainer.showOrHide(areTags);
-    progress.showOrHide(shareDataLength && areTags);
-  };
-  updateInput(1);
-
-  const selectTag = (tag: ExtendedHtmlElement) => {
-    if (selectedTag) {
-      selectedTag.classList().remove("selectedTag");
-    }
-    selectedTag = tag;
-    selectedTag.classList().add("selectedTag");
-    updateInput(selectedTag.indexInParent() + 1);
-    wordsInput.setValue(selectedTag.getAttribute("data"));
-    wordsInput.focus();
-  };
-
-  const addTag = (): void => {
-    wordsInput.setValue("");
-    const selectedTag = tagContainer.find(".selectedTag");
-    if (selectedTag) {
-      selectedTag.classList().remove("selectedTag");
-    }
-    const tag = extendHtmlElement(
-      <span class="tag is-light is-medium">
-        {tagContainer.getChildCount() + 1 + ". "}
-      </span>
-    );
-    tagContainer.appendChild(tag);
-
-    tag.events().onclick = () => {
-      selectTag(tag);
-    };
-    selectTag(tag);
-  };
-  addTag();
-
-  wordsInput.events().oninput = () => {
-    let selectedIndex = selectedTag.indexInParent();
-    const value = wordsInput.getValueString().trim();
-    selectedTag
-      .setText(selectedIndex + 1 + ". " + value)
-      .setAttribute("data", value);
-
-    const allWords = value.split(" ");
-
-    if (
-      allWords.length > 0 &&
-      !SLIP39_WORDS.has(allWords[0]) &&
-      !tagContainer.getLastChild().equals(selectedTag)
-    ) {
-      selectedTag.replaceClass("is-light", "is-warning");
-    }
-
-    while (allWords.length > 0 && SLIP39_WORDS.has(allWords[0])) {
-      selectedIndex = selectedTag.indexInParent();
-      selectedTag.replaceClass("is-warning", "is-light");
-      selectedTag.setText(selectedIndex + 1 + ". " + allWords[0]);
-      selectedTag.setAttribute("data", allWords[0]);
-      let emptyTagAdded = false;
-      if (tagContainer.getLastChild().equals(selectedTag)) {
-        if (
-          tagContainer.getChildCount() <
-          (shareDataLength || MAX_SHARE_DATA_LENGTH)
-        ) {
-          addTag();
-          emptyTagAdded = true;
-        }
-      } else {
-        selectTag(tagContainer.getChild(selectedIndex + 1));
-      }
-
-      allWords.shift();
-      updateInput(tagContainer.getChildCount());
-      if (!emptyTagAdded) {
-        evaluateWords();
-      }
-    }
-
-    progress.setValue(countValidWords());
-  };
-
-  doneButton.events().onclick = () => {
-    removeAnyModals();
-    const wordsString = wordsString2();
-
-    const fakeEnvelope: SecretShareEnvelope = { ...baseEnvelope };
-    fakeEnvelope.shareData = wordsString;
-    fakeEnvelope.shareId = shareId.getValueString();
-    for (let i = 0; i < baseEnvelope?.shareIds?.length || 0; ++i) {
-      if (baseEnvelope.shareIds[i] === fakeEnvelope.shareId) {
-        fakeEnvelope.thisSharesIndex = i;
-        break;
-      }
-    }
-    success(fakeEnvelope);
   };
 
   return modal;

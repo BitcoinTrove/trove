@@ -8,7 +8,7 @@ import { replaceAll } from "../../shared/constants";
 import { sha256 } from "../../platform/util/checksum";
 import { MasterSeed } from "../types/master_seed";
 import { SecretShareEnvelope } from "../types/secret_share_envelope";
-import { TROVE_VERSION } from "./version";
+import { TROVE_VERSION_AND_HASH } from "./version";
 
 const randomShareId = () => {
   var array = new Uint8Array(8);
@@ -81,17 +81,14 @@ export class SecretSplitter {
       settings.slip39Password
     );
 
-    const shareDataLengths = words.map((w) => w.split(" ").length);
-
     let envelopes: SecretShareEnvelope[] = words.map(
       (words: string, index: number) => {
         return {
           version: 0.1,
-          codeVersion: TROVE_VERSION,
+          codeVersion: TROVE_VERSION_AND_HASH,
           numberOfShares: finalNumberOfShares,
           numberOfRequiredShares: finalNumberOfRequiredShares,
           shareNames: filenames,
-          shareDataLengths: shareDataLengths,
           thisSharesIndex: index,
           referenceName: settings.referenceName,
           addressStrategy: settings.addressStrategy.getStrategyName(),

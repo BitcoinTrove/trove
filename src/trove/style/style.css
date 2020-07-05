@@ -252,3 +252,31 @@ code {
   margin-right: 50px;
   display: inline-block;
 }
+
+.suggestion-list {
+  position: absolute;
+  left: 4px;
+  border: 1px solid #12537e;
+  border-top: none;
+  list-style: none;
+  padding: 2px 0;
+  border-radius: 2px;
+}
+
+.suggestion-list-item {
+  cursor: pointer;
+  border: 2px solid transparent;
+  padding: 0 10px;
+}
+
+.suggestion-list-item:hover {
+  border: 2px solid #209cee;
+  border-radius: 6px;
+  color: #209cee;
+}
+
+.suggestion-list-item.selected {
+  border: 2px solid #209cee;
+  border-radius: 6px;
+  color: #209cee;
+}

@@ -5,7 +5,6 @@ export interface SecretShareEnvelope {
   numberOfRequiredShares: number;
   shareNames: string[];
   shareEnvelopeChecksums?: string[];
-  shareDataLengths?: number[];
   thisSharesIndex: number;
   shareId: string;
   shareIds: string[];

@@ -1,17 +1,13 @@
 import * as React from "jsx-dom"; // Fake React for JSX->DOM support
 import { download } from "./files";
 import { htmlRef } from "../../platform/util/html_ref";
-import {
-  IS_DEBUG,
-  IS_DEV,
-  serializeEnvelope,
-  DEBUG_DISPLAY,
-} from "../trove_constants";
-import { showTextInModal, showJsxModal } from "../../platform/util/modals";
+import { IS_DEBUG, IS_DEV, DEBUG_DISPLAY } from "../trove_constants";
+import { showJsxModal, showJsxInModal } from "../../platform/util/modals";
 import { createTroveWithDataInBrowser } from "../../platform/util/duplication";
 import { CreatePaperTemplate } from "../components/create_paper_template";
 import { SecretShareEnvelope } from "../types/secret_share_envelope";
 import { DocumentData, DOCUMENT_DATA } from "../types/document_data";
+import { EnvelopeDataDebug } from "../components/envelope_data_debug";
 
 declare var localize: (enText: string) => string;
 
@@ -76,7 +72,11 @@ export const createHtmlFromEnvelope = (
   if (IS_DEBUG) {
     peekEnvelopeData.show();
     peekEnvelopeData.events().onclick = () => {
-      showTextInModal(localize("Envelope data"), serializeEnvelope(envelope));
+      showJsxInModal(
+        localize("Envelope data"),
+        <EnvelopeDataDebug envelope={envelope} password={slip39Password} />,
+        true
+      );
     };
   }
 

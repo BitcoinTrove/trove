@@ -69,6 +69,7 @@ const determineDebug = (): boolean => {
 };
 export const IS_DEBUG = determineDebug();
 export const DEBUG_DISPLAY = IS_DEBUG ? "" : "none";
+export const DEV_AND_DEBUG_DISPLAY = IS_DEV && IS_DEBUG ? "" : "none";
 
 export const READONLY_COLOR = "#eee";
 

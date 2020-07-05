@@ -213,7 +213,6 @@ export class Step2_LoadShares extends WizardStepBody {
 
     baseEnvelope.shareNames.forEach((shareName, index) => {
       const shareId: string = baseEnvelope.shareIds[index];
-      const shareDataLength: number = baseEnvelope.shareDataLengths[index];
       const isThisFile = baseEnvelope.shareId === shareId;
 
       table.appendChild(
@@ -328,9 +327,6 @@ export class Step2_LoadShares extends WizardStepBody {
       });
     };
 
-    // TODO - Need to check that the lengths are always the same.
-    // If that is safe to assume, only have one length on the envelope.
-    const shareDataLength = baseEnvelope.shareDataLengths[0];
     this.loadPaperShareButton.events().onclick = () => {
       this.errorMessage.parent().hide();
       const shareId = htmlRef();
@@ -339,7 +335,6 @@ export class Step2_LoadShares extends WizardStepBody {
           envelopes_not_found={envelopes_not_found}
           envelopes_found={envelopes_found}
           baseEnvelope={baseEnvelope}
-          shareDataLength={shareDataLength}
           success={(envelope) => {
             this.loadPaperShareButton.setText(
               localize("Load another paper share")

@@ -664,7 +664,7 @@ export class Step1_Settings extends WizardStepBody {
     let network = this.selectedNetworkRadio.getValueString();
     const custodianNames = this.custodians
       .findAll("input")
-      .map((el) => el.getValueString());
+      .map((el, i) => el.getValueString() || "Custodian #" + (i + 1));
     const messageOnOwnerShareTemplate = this.messageOnOwnerShare.getValueString();
     const messageOnEachShareTemplate = this.messageOnEachShare.getValueString();
     const messageAfterRevealingTemplate = this.messageAfterRevealing.getValueString();

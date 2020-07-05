@@ -11,7 +11,7 @@ import { BulmaLevel } from "../../platform/components/bulma_level";
 import { htmlRef } from "../../platform/util/html_ref";
 import { copyTextToClipboard } from "../../platform/util/clipboard";
 import { DOCUMENT_DATA } from "../types/document_data";
-import { TROVE_VERSION } from "../util/version";
+import { TROVE_VERSION_AND_HASH, TROVE_VERSION } from "../util/version";
 
 export class VersionInfoPage extends Screen {
   constructor(home: Screen) {
@@ -43,7 +43,7 @@ export class VersionInfoPage extends Screen {
               <strong>Trove Version:</strong>
             </span>
             <br></br>
-            <span>{TROVE_VERSION}</span>
+            <span>{TROVE_VERSION_AND_HASH}</span>
             <br></br>
             <span
               class="link"
@@ -62,22 +62,33 @@ export class VersionInfoPage extends Screen {
           </span>
           <div style="margin-left: 35px;">
             <ol>
+              <li>Trove should be downloaded from our github pages.</li>
               <li>
-                Trove should always be downloaded from{" "}
+                This version of trove is available at{" "}
                 <a
                   target="_blank"
-                  href="https://bitcointrove.github.io/trove.html"
+                  href={
+                    "https://bitcointrove.github.io/release/" +
+                    TROVE_VERSION +
+                    "/trove.html"
+                  }
                 >
-                  https://bitcointrove.github.io/trove.html
+                  https://bitcointrove.github.io/release/{TROVE_VERSION}
+                  /trove.html
                 </a>
               </li>
               <li>
                 The signature can be downloaded from{" "}
                 <a
                   target="_blank"
-                  href="https://bitcointrove.github.io/trove.html.sig"
+                  href={
+                    "https://bitcointrove.github.io/release/" +
+                    TROVE_VERSION +
+                    "/trove.html.sig"
+                  }
                 >
-                  https://bitcointrove.github.io/trove.html.sig
+                  https://bitcointrove.github.io/release/{TROVE_VERSION}
+                  /trove.html.sig
                 </a>
               </li>
               <li>
@@ -88,18 +99,28 @@ export class VersionInfoPage extends Screen {
                 The Trove public key can be downloaded from{" "}
                 <a
                   target="_blank"
-                  href="https://bitcointrove.github.io/trove.pub"
+                  href={
+                    "https://bitcointrove.github.io/release/" +
+                    TROVE_VERSION +
+                    "/trove.pub"
+                  }
                 >
-                  https://bitcointrove.github.io/trove.pub
+                  https://bitcointrove.github.io/release/{TROVE_VERSION}
+                  /trove.pub
                 </a>
               </li>
               <li>
                 Trove is open timestamped{" "}
                 <a
                   target="_blank"
-                  href="https://bitcointrove.github.io/trove.ots"
+                  href={
+                    "https://bitcointrove.github.io/release/" +
+                    TROVE_VERSION +
+                    "/trove.ots"
+                  }
                 >
-                  https://bitcointrove.github.io/trove.ots
+                  https://bitcointrove.github.io/release/{TROVE_VERSION}
+                  /trove.ots
                 </a>
               </li>
             </ol>

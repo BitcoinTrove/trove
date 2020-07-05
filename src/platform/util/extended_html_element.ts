@@ -1,4 +1,5 @@
 import { HtmlRef } from "./html_ref";
+import { canonicalize } from "json-canonicalize";
 
 export interface BulmaElement {
   primary: () => HTMLElement & ExtendedHtmlElement;
@@ -87,6 +88,9 @@ export interface ExtendedHtmlElement {
   appendChild: (
     element: HTMLElement | ExtendedHtmlElement
   ) => ExtendedHtmlElement;
+  appendChildren: (
+    elements: HTMLElement[] | ExtendedHtmlElement[]
+  ) => ExtendedHtmlElement;
   insertBefore: (
     newChild: ExtendedHtmlElement,
     child: ExtendedHtmlElement
@@ -103,6 +107,8 @@ export interface ExtendedHtmlElement {
   getText: () => string;
   getAttribute: (attribute: string) => string;
   setAttribute: (attribute: string, value: string) => ExtendedHtmlElement;
+  setDataAttribute: <T extends object>(o: T) => ExtendedHtmlElement;
+  getDataAttribute: <T extends object>() => T;
 
   click: () => void;
   focus: () => ExtendedHtmlElement;
@@ -258,6 +264,19 @@ export const extendHtmlElement = <T extends HTMLElement>(element: T) => {
       }
       return elementToExtend;
     },
+    appendChildren: (element2: HTMLElement[] | ExtendedHtmlElement[]) => {
+      if (!element2[0]) {
+        return elementToExtend;
+      }
+      if (element2[0] instanceof HTMLElement) {
+        element2.forEach((e) => element.appendChild(e));
+      } else if ((element2[0] as ExtendedHtmlElement).asHtmlElement) {
+        (element2 as ExtendedHtmlElement[]).forEach((e) =>
+          element.appendChild(e.asHtmlElement())
+        );
+      }
+      return elementToExtend;
+    },
     insertBefore: (
       newChild: ExtendedHtmlElement,
       child: ExtendedHtmlElement
@@ -305,6 +324,13 @@ export const extendHtmlElement = <T extends HTMLElement>(element: T) => {
     setAttribute: (attribute: string, value: string) => {
       element.setAttribute(attribute, value);
       return elementToExtend;
+    },
+    setDataAttribute: <T extends object>(o: T) => {
+      element.setAttribute("data", canonicalize(o));
+      return elementToExtend;
+    },
+    getDataAttribute: <T extends object>() => {
+      return JSON.parse(element.getAttribute("data")) as T;
     },
 
     click: () => {

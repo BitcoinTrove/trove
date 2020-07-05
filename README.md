@@ -124,7 +124,10 @@ Test in latest Chrome, Firefox, Edge:
 5. Sign the build `npm run gpg-sign-release`
 6. Verify the signature `npm run gpg-verify-release`
 7. Create an open timestamp of trove.html at https://opentimestamps.org/
-8. Push to github pages (trove.html, trove.html.sig, trove.ots)
+8. Push to github pages
+   1. Create a directory for the release
+   2. Add trove.html, trove.html.sig, trove.ots, trove.pub to the release directory
+   3. Add trove.html, trove.html.sig, trove.ots, trove.pub to the root directory
 9. Download Trove from github pages `curl --socks5-hostname 127.0.0.1:9150 https://bitcointrove.github.io/index.html -o /tmp/trove.html`
 10. Download signature from github pages `curl --socks5-hostname 127.0.0.1:9150 https://bitcointrove.github.io/trove.html.sig -o /tmp/trove.html.sig`
 11. Verify files match `sha256sum release/trove.html /tmp/trove.html`

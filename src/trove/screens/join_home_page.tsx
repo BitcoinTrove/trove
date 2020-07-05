@@ -13,6 +13,8 @@ import {
   IS_DEBUG,
   serializeEnvelope,
   isTestnetShare,
+  DEBUG_DISPLAY,
+  IS_DEV,
 } from "../trove_constants";
 import { AboutPage } from "./about_page";
 import { showJsxInModal } from "../../platform/util/modals";
@@ -24,6 +26,8 @@ import { SecretShareEnvelope } from "../types/secret_share_envelope";
 import { htmlRef } from "../../platform/util/html_ref";
 import { copyTextToClipboard } from "../../platform/util/clipboard";
 import { VersionInfoPage } from "./version_info_page";
+import { EnvelopeDataDebug } from "../components/envelope_data_debug";
+import { hasParameter } from "../../platform/util/query_params";
 
 declare var localize: (enText: string) => string;
 
@@ -158,46 +162,16 @@ export class JoinHomeScreen extends Screen {
               class="homeTable"
               style="display: none;"
             >
-              {IS_DEBUG ? (
+              {IS_DEBUG && IS_DEV && hasParameter("data") ? (
                 <tr>
                   <td>
-                    <button
+                    <a
                       class="button is-outlined is-info"
                       style="border-style: dashed;"
-                      onClick={(e) => {
-                        showJsxInModal(
-                          localize("Share ID and Slip39 words"),
-                          <div>
-                            <div class="field">
-                              <label class="label">
-                                {localize("Share ID")}
-                              </label>
-                              <div class="control">
-                                <input
-                                  class="input"
-                                  type="text"
-                                  value={baseEnvelope.shareId}
-                                  readOnly={true}
-                                ></input>
-                              </div>
-                            </div>
-                            <div class="field">
-                              <label class="label">
-                                {localize("Slip39 words")}
-                              </label>
-                              <div class="control">
-                                <textarea class="textarea" readOnly={true}>
-                                  {baseEnvelope.shareData}
-                                </textarea>
-                              </div>
-                            </div>
-                          </div>,
-                          true
-                        );
-                      }}
+                      href="http://localhost:1234/"
                     >
-                      {localize("Debug: Share ID and Slip39")}
-                    </button>
+                      {localize("Debug: Remove data")}
+                    </a>
                   </td>
                 </tr>
               ) : null}
@@ -206,7 +180,14 @@ export class JoinHomeScreen extends Screen {
                   <button
                     ref={this.debugPeekButton}
                     class="button is-outlined is-info"
-                    style="display: none; border-style: dashed;"
+                    style={{ display: DEBUG_DISPLAY, "border-style": "dashed" }}
+                    onClick={(e) => {
+                      showJsxInModal(
+                        localize("Envelope data"),
+                        <EnvelopeDataDebug envelope={this.baseEnvelope} />,
+                        true
+                      );
+                    }}
                   >
                     {localize("Debug: Show envelope data")}
                   </button>
@@ -320,48 +301,5 @@ export class JoinHomeScreen extends Screen {
       mount(document.body, this.about);
       this.about.show();
     };
-
-    if (IS_DEBUG) {
-      this.debugPeekButton.show();
-      this.debugPeekButton.events().onclick = () => {
-        /*showTextInModal(
-          localize("Envelope data"),
-          serializeEnvelope(this.baseEnvelope)
-        );*/
-        const envelopeData = serializeEnvelope(this.baseEnvelope);
-        const copyData = htmlRef();
-        const copyLink = htmlRef();
-        showJsxInModal(
-          localize("Envelope data"),
-          <div>
-            <pre style="white-space: pre-wrap; padding: 10px;">
-              {envelopeData}
-            </pre>
-            <button
-              ref={copyData}
-              class="button is-info is-outlined"
-              onClick={(e) => {
-                copyTextToClipboard(envelopeData, copyData);
-              }}
-            >
-              {localize("Copy data to clipboard")}
-            </button>
-            <button
-              ref={copyLink}
-              class="button is-info is-outlined"
-              onClick={(e) => {
-                copyTextToClipboard(
-                  "http://localhost:1234/?data=" + envelopeData,
-                  copyLink
-                );
-              }}
-            >
-              {localize("Copy localhost link with data")}
-            </button>
-          </div>,
-          true
-        );
-      };
-    }
   }
 }

@@ -2,7 +2,7 @@ import * as React from "jsx-dom"; // Fake React for JSX->DOM support
 
 export const removeAnyModals = () => {
   const modals = document.body.querySelectorAll(".modal");
-  modals.forEach(m => {
+  modals.forEach((m) => {
     m.parentElement.removeChild(m);
   });
 };
@@ -57,7 +57,9 @@ export const showJsxInModal = (
             onClick={removeAnyModals}
           ></button>
         </header>
-        <section class="modal-card-body">{jsx}</section>
+        <section class="modal-card-body" style="z-index: 1;">
+          {jsx}
+        </section>
         <footer class="modal-card-foot" style="justify-content: flex-end;">
           {buttons || (
             <button class="button closeButton" onClick={removeAnyModals}>

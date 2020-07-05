@@ -159,8 +159,10 @@ export class Step2_LoadWords extends WizardStepBody {
   }
 
   saveState(wizardState: object) {
+    if (!this.masterSeedBytes) {
+      return;
+    }
     const network = networkFromString(wizardState["networkOverride"]);
-
     wizardState["masterSeed"] = MasterSeed.fromByteArray(
       this.masterSeedBytes,
       network
